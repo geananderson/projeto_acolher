@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   SafeAreaView,
@@ -21,6 +22,7 @@ const COLORS = {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -82,6 +84,7 @@ export default function Dashboard() {
         <NavButton
           icon={<Feather name="users" color="#BDC3C7" size={24} />}
           label="Chat"
+          onPress={() => router.push("/chat" as any)}
         />
         <NavButton
           icon={<Feather name="heart" color="#BDC3C7" size={24} />}
@@ -119,8 +122,8 @@ const GroupCard = ({ title, icon }: any) => (
   </View>
 );
 
-const NavButton = ({ icon, label, active }: any) => (
-  <TouchableOpacity style={styles.navButton}>
+const NavButton = ({ icon, label, active, onPress }: any) => (
+  <TouchableOpacity style={styles.navButton} onPress={onPress}>
     {icon}
     <Text style={[styles.navLabel, active && { color: COLORS.principal }]}>
       {label}
