@@ -14,8 +14,8 @@ import {
   View,
 } from "react-native";
 
-import { Button } from "@/src/components/Button";
-import { Input } from "@/src/components/Input";
+import { Button } from "../components/Button";
+import { Input } from "../components/input";
 
 const FRASES = [
   "Sua jornada para o bem-estar começa aqui.",
@@ -44,7 +44,7 @@ export default function Cadastro() {
       progress.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
-        duration: 6000,
+        duration: 3000,
         useNativeDriver: false,
       }).start();
 
@@ -54,7 +54,7 @@ export default function Cadastro() {
 
       setTimeout(() => {
         setEtapa("sucesso");
-      }, 6000);
+      }, 3000);
     }
     return () => clearInterval(interval);
   }, [etapa]);

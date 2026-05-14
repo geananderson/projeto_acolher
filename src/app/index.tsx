@@ -13,8 +13,8 @@ import {
   View,
 } from "react-native";
 
-import { Button } from "@/src/components/Button";
-import { Input } from "@/src/components/Input";
+import { Button } from "../components/Button";
+import { Input } from "../components/input";
 
 const FRASES = [
   "Respire fundo. Você está fazendo o seu melhor.",
@@ -47,7 +47,7 @@ export default function Login() {
       progress.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
-        duration: 10000,
+        duration: 3000,
         useNativeDriver: false,
       }).start();
 
@@ -69,7 +69,7 @@ export default function Login() {
     setTimeout(() => {
       setLoading(false);
       router.replace("/dashboard");
-    }, 10000);
+    }, 3000);
   };
 
   if (loading) {
