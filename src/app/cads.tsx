@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -17,62 +18,72 @@ import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
 
 const FRASES = [
-  "Respire fundo. Você está fazendo o seu melhor.",
-  "Pequenos passos também levam a grandes destinos.",
-  "Sua saúde mental é uma prioridade, não um luxo.",
-  "Um dia de cada vez. Você consegue.",
-  "Seja gentil com a sua mente hoje.",
-  "Tudo bem não estar bem o tempo todo.",
-  "Sua jornada importa, não importa o ritmo.",
-  "Você é mais forte do que imagina.",
-  "Acalme seu coração, o melhor ainda está por vir.",
-  "Sua coragem inspira quem está ao seu redor.",
-  "Permita-se descansar. Amanhã é um novo dia.",
-  "Você não está sozinho nessa jornada.",
+  "Sua jornada para o bem-estar começa aqui.",
+  "Estamos preparando um espaço seguro para você.",
+  "Cuidar de si é o melhor investimento.",
+  "Quase pronto! Vamos começar essa caminhada juntos.",
 ];
 
-export default function Login() {
+export default function Cadastro() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [etapa, setEtapa] = useState<"formulario" | "carregando" | "sucesso">(
+    "formulario",
+  );
   const [currentFrase, setCurrentFrase] = useState(0);
 
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Novo campo
 
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let interval: any;
-    if (loading) {
+    if (etapa === "carregando") {
       progress.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
-        duration: 10000,
+        duration: 6000,
         useNativeDriver: false,
       }).start();
 
       interval = setInterval(() => {
         setCurrentFrase((prev) => (prev + 1) % FRASES.length);
-      }, 1800);
+      }, 2000);
+
+      setTimeout(() => {
+        setEtapa("sucesso");
+      }, 6000);
     }
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [etapa]);
 
-  const handleLogin = () => {
-    // Validação: Se um dos campos estiver vazio, barra o login e exibe alerta
-    if (email.trim() === "" || password.trim() === "") {
-      Alert.alert("Aviso", "Os campos de e-mail e senha são obrigatórios.");
+  const handleCadastro = () => {
+    // Validação de campos vazios
+    if (
+      nome.trim() === "" ||
+      email.trim() === "" ||
+      password.trim() === "" ||
+      confirmPassword.trim() === ""
+    ) {
+      Alert.alert("Aviso", "Preencha todos os campos para continuar.");
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.replace("/dashboard");
-    }, 10000);
+    // Validação de senhas iguais
+    if (password !== confirmPassword) {
+      Alert.alert(
+        "Erro",
+        "As senhas não coincidem. Verifique e tente novamente.",
+      );
+      return;
+    }
+
+    setEtapa("carregando");
   };
 
-  if (loading) {
+  if (etapa === "carregando") {
     return (
       <View style={styles.loadingContainer}>
         <Image
@@ -95,7 +106,26 @@ export default function Login() {
         <View style={styles.fraseBox}>
           <Text style={styles.fraseText}>{FRASES[currentFrase]}</Text>
         </View>
-        <Text style={styles.loadingSubText}>PREPARANDO SEU AMBIENTE</Text>
+      </View>
+    );
+  }
+
+  if (etapa === "sucesso") {
+    return (
+      <View style={styles.successContainer}>
+        <View style={styles.successIconCircle}>
+          <Feather name="check" size={50} color="#FFFFFF" />
+        </View>
+        <Text style={styles.successTitle}>Dados Cadastrados!</Text>
+        <Text style={styles.successSubtitle}>
+          Sua conta foi criada com sucesso. Agora você já pode acessar o
+          sistema.
+        </Text>
+        <Button
+          label="Voltar para o Login"
+          onPress={() => router.replace("/")}
+          style={styles.buttonDefault}
+        />
       </View>
     );
   }
@@ -108,46 +138,55 @@ export default function Login() {
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
       >
         <View style={styles.container}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Feather name="arrow-left" size={24} color="#333" />
+          </TouchableOpacity>
+
           <Image
             source={require("@/src/assets/img1.png")}
             style={styles.illustration}
           />
-          <Text style={styles.title}>Entrar</Text>
+
+          <Text style={styles.title}>Criar Conta</Text>
           <Text style={styles.subtitle}>
-            Acesse sua conta com e-mail e senha.
+            Preencha os dados abaixo para começar.
           </Text>
 
           <View style={styles.form}>
             <Input
+              placeholder="Nome Completo"
+              value={nome}
+              onChangeText={setNome}
+            />
+            <Input
               placeholder="E-mail"
               keyboardType="email-address"
-              placeholderTextColor="#555"
               value={email}
               onChangeText={setEmail}
             />
             <Input
               placeholder="Senha"
               secureTextEntry
-              placeholderTextColor="#555"
               value={password}
               onChangeText={setPassword}
             />
+            <Input
+              placeholder="Confirmar Senha"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
 
             <Button
-              label="Entrar"
-              onPress={handleLogin}
-              style={styles.buttonDefault} // Botão sempre com a cor normal
+              label="Cadastrar"
+              onPress={handleCadastro}
+              style={styles.buttonDefault}
             />
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Não tem uma conta? </Text>
-            <TouchableOpacity onPress={() => router.push("/cads")}>
-              <Text style={styles.footerLink}>Cadastre-se aqui.</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -157,14 +196,10 @@ export default function Login() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FDFDFD", padding: 32 },
-  illustration: {
-    width: "100%",
-    height: 330,
-    resizeMode: "contain",
-    marginTop: 62,
-  },
+  backButton: { marginTop: 40, marginBottom: 10 },
+  illustration: { width: "100%", height: 220, resizeMode: "contain" },
   title: { fontSize: 32, fontWeight: "900" },
-  subtitle: { fontSize: 16 },
+  subtitle: { fontSize: 16, color: "#666" },
   form: { marginTop: 24, gap: 12 },
   buttonDefault: {
     width: "100%",
@@ -173,14 +208,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
+    marginTop: 10,
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 24,
-  },
-  footerText: { color: "#555" },
-  footerLink: { color: "#032ad7", fontWeight: "700" },
   loadingContainer: {
     flex: 1,
     backgroundColor: "#FFFFFF",
@@ -189,8 +218,8 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   loadingLogo: {
-    width: 180,
-    height: 180,
+    width: 150,
+    height: 150,
     resizeMode: "contain",
     marginBottom: 40,
   },
@@ -203,24 +232,44 @@ const styles = StyleSheet.create({
   },
   progressBarFill: { height: "100%", backgroundColor: "#00BFA5" },
   fraseBox: {
-    height: 120,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 40,
   },
   fraseText: {
-    fontSize: 20,
+    fontSize: 18,
     textAlign: "center",
     color: "#333",
     fontStyle: "italic",
-    lineHeight: 28,
-    fontWeight: "500",
   },
-  loadingSubText: {
-    marginTop: 60,
-    color: "#BDC3C7",
-    fontSize: 12,
-    letterSpacing: 2,
-    fontWeight: "600",
+  successContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  successIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#00BFA5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  successTitle: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 12,
+  },
+  successSubtitle: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 40,
+    lineHeight: 22,
   },
 });
