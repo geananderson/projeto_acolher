@@ -5,14 +5,17 @@ import {
   Alert,
   Animated,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  TouchableOpacity, // Importado para capturar o clique no fundo
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "../components/Button";
 import { Input } from "../components/input";
@@ -34,7 +37,7 @@ export default function Cadastro() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Novo campo
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const progress = useRef(new Animated.Value(0)).current;
 
@@ -60,7 +63,6 @@ export default function Cadastro() {
   }, [etapa]);
 
   const handleCadastro = () => {
-    // Validação de campos vazios
     if (
       nome.trim() === "" ||
       email.trim() === "" ||
@@ -71,12 +73,8 @@ export default function Cadastro() {
       return;
     }
 
-    // Validação de senhas iguais
     if (password !== confirmPassword) {
-      Alert.alert(
-        "Erro",
-        "As senhas não coincidem. Verifique e tente novamente.",
-      );
+      Alert.alert("Erro", "As senhas não coincidem.");
       return;
     }
 
@@ -131,80 +129,90 @@ export default function Cadastro() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.select({ ios: "padding", android: "height" })}
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#00BFA5" }}
+      edges={["right", "left", "bottom"]}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="always"
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "#00BFA5" }}
+        behavior={Platform.select({ ios: "padding", android: "height" })}
       >
-        <View style={styles.container}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          style={{ backgroundColor: "#00BFA5" }}
+          keyboardShouldPersistTaps="handled" // CORREÇÃO: "handled" permite que o toque no fundo feche o teclado
+        >
+          <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+            <View style={styles.container}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.backButton}
+              >
+                <Feather name="arrow-left" size={24} color="#ffffff" />
+              </TouchableOpacity>
 
-          <Image
-            source={require("@/src/assets/img1.png")}
-            style={styles.illustration}
-          />
+              <Image
+                source={require("@/src/assets/img1.png")}
+                style={styles.illustration}
+              />
 
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>
-            Preencha os dados abaixo para começar.
-          </Text>
+              <Text style={styles.title}>Criar Conta</Text>
+              <Text
+                style={[styles.subtitle, { color: "#ffffff", opacity: 0.8 }]}
+              >
+                Preencha os dados abaixo para começar.
+              </Text>
 
-          <View style={styles.form}>
-            <Input
-              placeholder="Nome Completo"
-              value={nome}
-              onChangeText={setNome}
-            />
-            <Input
-              placeholder="E-mail"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Input
-              placeholder="Senha"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-            <Input
-              placeholder="Confirmar Senha"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-            />
+              <View style={styles.form}>
+                <Input
+                  placeholder="Nome Completo"
+                  value={nome}
+                  onChangeText={setNome}
+                />
+                <Input
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
+                />
+                <Input
+                  placeholder="Senha"
+                  secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
+                />
+                <Input
+                  placeholder="Confirmar Senha"
+                  secureTextEntry
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                />
 
-            <Button
-              label="Cadastrar"
-              onPress={handleCadastro}
-              style={styles.buttonDefault}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                <Button
+                  label="Cadastrar"
+                  onPress={handleCadastro}
+                  style={styles.buttonDefault}
+                />
+              </View>
+            </View>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FDFDFD", padding: 32 },
+  container: { flex: 1, backgroundColor: "#00BFA5", padding: 32 },
   backButton: { marginTop: 40, marginBottom: 10 },
   illustration: { width: "100%", height: 220, resizeMode: "contain" },
-  title: { fontSize: 32, fontWeight: "900" },
-  subtitle: { fontSize: 16, color: "#666" },
+  title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
+  subtitle: { fontSize: 16, color: "#000000" },
   form: { marginTop: 24, gap: 12 },
   buttonDefault: {
     width: "100%",
     height: 48,
-    backgroundColor: "#3366FF",
+    backgroundColor: "#00238e",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
