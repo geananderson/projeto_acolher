@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context"; // ADICIONADO: Importação do SafeArea
 
 import { Button } from "../components/Button";
 import { Input } from "../components/input";
@@ -59,7 +60,6 @@ export default function Login() {
   }, [loading]);
 
   const handleLogin = () => {
-    // Validação: Se um dos campos estiver vazio, barra o login e exibe alerta
     if (email.trim() === "" || password.trim() === "") {
       Alert.alert("Aviso", "Os campos de e-mail e senha são obrigatórios.");
       return;
@@ -101,57 +101,63 @@ export default function Login() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.select({ ios: "padding", android: "height" })}
+    // CORREÇÃO: Envelopado com o SafeAreaView forçando as bordas laterais e inferior, matando a faixa branca nativa do Android
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#00BFA5" }}
+      edges={["right", "left", "bottom"]}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.select({ ios: "padding", android: "height" })}
       >
-        <View style={styles.container}>
-          <Image
-            source={require("@/src/assets/img1.png")}
-            style={styles.illustration}
-          />
-          <Text style={styles.title}>Entrar</Text>
-          <Text style={styles.subtitle}>
-            Acesse sua conta com e-mail e senha.
-          </Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.container}>
+            <Image
+              source={require("@/src/assets/img1.png")}
+              style={styles.illustration}
+            />
+            <Text style={styles.title}>Entrar</Text>
+            <Text style={styles.subtitle}>
+              Acesse sua conta com e-mail e senha.
+            </Text>
 
-          <View style={styles.form}>
-            <Input
-              placeholder="E-mail"
-              keyboardType="email-address"
-              placeholderTextColor="#555"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Input
-              placeholder="Senha"
-              secureTextEntry
-              placeholderTextColor="#555"
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View style={styles.form}>
+              <Input
+                placeholder="E-mail"
+                keyboardType="email-address"
+                placeholderTextColor="#555"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <Input
+                placeholder="Senha"
+                secureTextEntry
+                placeholderTextColor="#555"
+                value={password}
+                onChangeText={setPassword}
+              />
 
-            <Button
-              label="Entrar"
-              onPress={handleLogin}
-              style={styles.buttonDefault} // Botão sempre com a cor normal
-            />
+              <Button
+                label="Entrar"
+                onPress={handleLogin}
+                style={styles.buttonDefault}
+              />
+            </View>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Não tem uma conta? </Text>
+              <TouchableOpacity onPress={() => router.push("/cads")}>
+                <Text style={styles.footerLink}>Cadastre-se aqui.</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Não tem uma conta? </Text>
-            <TouchableOpacity onPress={() => router.push("/cads")}>
-              <Text style={styles.footerLink}>Cadastre-se aqui.</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
