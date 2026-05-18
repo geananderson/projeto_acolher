@@ -157,9 +157,7 @@ export default function Cadastro() {
               />
 
               <Text style={styles.title}>Criar Conta</Text>
-              <Text
-                style={[styles.subtitle, { color: "#ffffff", opacity: 0.8 }]}
-              >
+              <Text style={[styles.subtitle, { opacity: 0.8 }]}>
                 Preencha os dados abaixo para começar.
               </Text>
 
@@ -204,10 +202,10 @@ export default function Cadastro() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#00BFA5", padding: 32 },
-  backButton: { marginTop: 40, marginBottom: 10 },
+  backButton: { marginTop: 25, marginBottom: 40, marginLeft: -12 },
   illustration: { width: "100%", height: 220, resizeMode: "contain" },
   title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
-  subtitle: { fontSize: 16, color: "#000000" },
+  subtitle: { fontSize: 16, color: "" },
   form: { marginTop: 24, gap: 12 },
   buttonDefault: {
     width: "100%",

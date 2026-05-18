@@ -156,20 +156,20 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FDFDFD", padding: 32 },
+  container: { flex: 1, backgroundColor: "#00BFA5", padding: 32 },
   illustration: {
     width: "100%",
     height: 330,
     resizeMode: "contain",
     marginTop: 62,
   },
-  title: { fontSize: 32, fontWeight: "900" },
+  title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
   subtitle: { fontSize: 16 },
   form: { marginTop: 24, gap: 12 },
   buttonDefault: {
     width: "100%",
     height: 48,
-    backgroundColor: "#3366FF",
+    backgroundColor: "#00238e",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
