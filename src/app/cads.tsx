@@ -12,7 +12,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity, // Importado para capturar o clique no fundo
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -34,12 +34,21 @@ export default function Cadastro() {
   );
   const [currentFrase, setCurrentFrase] = useState(0);
 
+  // Seus estados originais
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Estados do Especialista (Tabela Especialidades)
+  const [isEspecialista, setIsEspecialista] = useState(false);
+  const [crp, setCrp] = useState("");
+  const [especialidade, setEspecialidade] = useState("");
+  const [credenciais, setCredenciais] = useState("");
+  const [biografia, setBiografia] = useState("");
+
   const progress = useRef(new Animated.Value(0)).current;
+  const flipAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let interval: any;
@@ -62,6 +71,26 @@ export default function Cadastro() {
     return () => clearInterval(interval);
   }, [etapa]);
 
+  const handleFlip = () => {
+    Keyboard.dismiss();
+    const targetValue = isEspecialista ? 0 : 180;
+
+    Animated.timing(flipAnim, {
+      toValue: targetValue,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+
+    setTimeout(() => {
+      setIsEspecialista(!isEspecialista);
+    }, 250);
+  };
+
+  const rotateY = flipAnim.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["0deg", "180deg"],
+  });
+
   const handleCadastro = () => {
     if (
       nome.trim() === "" ||
@@ -76,6 +105,20 @@ export default function Cadastro() {
     if (password !== confirmPassword) {
       Alert.alert("Erro", "As senhas não coincidem.");
       return;
+    }
+
+    if (isEspecialista) {
+      if (
+        crp.trim() === "" ||
+        especialidade.trim() === "" ||
+        biografia.trim() === ""
+      ) {
+        Alert.alert(
+          "Aviso",
+          "Preencha os dados profissionais do especialista.",
+        );
+        return;
+      }
     }
 
     setEtapa("carregando");
@@ -140,58 +183,144 @@ export default function Cadastro() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           style={{ backgroundColor: "#00BFA5" }}
-          keyboardShouldPersistTaps="handled" // CORREÇÃO: "handled" permite que o toque no fundo feche o teclado
+          keyboardShouldPersistTaps="handled"
         >
           <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
             <View style={styles.container}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Feather name="arrow-left" size={24} color="#ffffff" />
-              </TouchableOpacity>
+              {/* Header com botões ajustados para as bordas */}
+              <View style={styles.headerContainer}>
+                <TouchableOpacity
+                  onPress={() => router.back()}
+                  style={styles.backButton}
+                >
+                  <Feather name="arrow-left" size={24} color="#ffffff" />
+                </TouchableOpacity>
+
+                {/* Botão encostado na direita com margem compensada */}
+                <TouchableOpacity
+                  onPress={handleFlip}
+                  style={styles.toggleButton}
+                  activeOpacity={0.7}
+                >
+                  <Feather
+                    name={isEspecialista ? "user" : "user-plus"}
+                    size={18}
+                    color="#00BFA5"
+                  />
+                  <Text style={styles.toggleButtonText}>
+                    {isEspecialista ? "Sou Paciente" : "Sou Especialista"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
               <Image
                 source={require("@/src/assets/img1.png")}
                 style={styles.illustration}
               />
 
-              <Text style={styles.title}>Criar Conta</Text>
-              <Text style={[styles.subtitle, { opacity: 0.8 }]}>
-                Preencha os dados abaixo para começar.
-              </Text>
+              {/* Bloco Animado do Formulário */}
+              <Animated.View style={[{ flex: 1, transform: [{ rotateY }] }]}>
+                {!isEspecialista ? (
+                  /* LADO A: Formulário Comum */
+                  <View style={styles.cardInternal}>
+                    <Text style={styles.title}>Criar Conta</Text>
+                    <Text style={[styles.subtitle, { opacity: 0.8 }]}>
+                      Preencha os dados abaixo para começar.
+                    </Text>
 
-              <View style={styles.form}>
-                <Input
-                  placeholder="Nome Completo"
-                  value={nome}
-                  onChangeText={setNome}
-                />
-                <Input
-                  placeholder="E-mail"
-                  keyboardType="email-address"
-                  value={email}
-                  onChangeText={setEmail}
-                />
-                <Input
-                  placeholder="Senha"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <Input
-                  placeholder="Confirmar Senha"
-                  secureTextEntry
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                />
+                    <View style={styles.form}>
+                      <Input
+                        placeholder="Nome Completo"
+                        value={nome}
+                        onChangeText={setNome}
+                      />
+                      <Input
+                        placeholder="E-mail"
+                        keyboardType="email-address"
+                        value={email}
+                        onChangeText={setEmail}
+                      />
+                      <Input
+                        placeholder="Senha"
+                        secureTextEntry
+                        value={password}
+                        onChangeText={setPassword}
+                      />
+                      <Input
+                        placeholder="Confirmar Senha"
+                        secureTextEntry
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                      />
 
-                <Button
-                  label="Cadastrar"
-                  onPress={handleCadastro}
-                  style={styles.buttonDefault}
-                />
-              </View>
+                      <Button
+                        label="Cadastrar"
+                        onPress={handleCadastro}
+                        style={styles.buttonDefault}
+                      />
+                    </View>
+                  </View>
+                ) : (
+                  /* LADO B: Formulário Especialista */
+                  <View
+                    style={[
+                      styles.cardInternal,
+                      { transform: [{ rotateY: "180deg" }] },
+                    ]}
+                  >
+                    <Text style={styles.title}>Especialista</Text>
+                    <Text style={[styles.subtitle, { opacity: 0.8 }]}>
+                      Insira seus dados profissionais abaixo.
+                    </Text>
+
+                    <View style={styles.form}>
+                      <Input
+                        placeholder="Nome Completo"
+                        value={nome}
+                        onChangeText={setNome}
+                      />
+                      <Input
+                        placeholder="E-mail"
+                        keyboardType="email-address"
+                        value={email}
+                        onChangeText={setEmail}
+                      />
+                      <Input
+                        placeholder="Senha"
+                        secureTextEntry
+                        value={password}
+                        onChangeText={setPassword}
+                      />
+                      <Input
+                        placeholder="Código CRP"
+                        value={crp}
+                        onChangeText={setCrp}
+                      />
+                      <Input
+                        placeholder="Especialidade"
+                        value={especialidade}
+                        onChangeText={setEspecialidade}
+                      />
+                      <Input
+                        placeholder="Credenciais / Títulos"
+                        value={credenciais}
+                        onChangeText={setCredenciais}
+                      />
+                      <Input
+                        placeholder="Biografia / Resumo"
+                        value={biografia}
+                        onChangeText={setBiografia}
+                      />
+
+                      <Button
+                        label="Cadastrar Especialista"
+                        onPress={handleCadastro}
+                        style={styles.buttonDefault}
+                      />
+                    </View>
+                  </View>
+                )}
+              </Animated.View>
             </View>
           </Pressable>
         </ScrollView>
@@ -202,10 +331,39 @@ export default function Cadastro() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#00BFA5", padding: 32 },
-  backButton: { marginTop: 25, marginBottom: 40, marginLeft: -12 },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 25,
+    marginBottom: 40,
+    width: "100%", // Força o container a ocupar a largura total do padding interno
+  },
+  backButton: { marginLeft: -12, padding: 4 },
+  toggleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    gap: 6,
+    marginRight: -12, // CORREÇÃO: Anula o padding do container jogando a pílula para a borda extrema direita
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  toggleButtonText: {
+    color: "#00BFA5",
+    fontWeight: "bold",
+    fontSize: 13,
+  },
+  cardInternal: { flex: 1 },
   illustration: { width: "100%", height: 220, resizeMode: "contain" },
   title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
-  subtitle: { fontSize: 16, color: "" },
+  subtitle: { fontSize: 16, color: "#ffffff" },
   form: { marginTop: 24, gap: 12 },
   buttonDefault: {
     width: "100%",
