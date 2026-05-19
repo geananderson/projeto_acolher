@@ -48,6 +48,11 @@ export default function Cadastro() {
   const [credenciais, setCredenciais] = useState("");
   const [biografia, setBiografia] = useState("");
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // ADICIONADO: Uma referência para conseguir controlar o ScrollView via código
+  const scrollViewRef = useRef<ScrollView>(null);
+
   const progress = useRef(new Animated.Value(0)).current;
   const flipAnim = useRef(new Animated.Value(0)).current;
 
@@ -72,7 +77,27 @@ export default function Cadastro() {
     return () => clearInterval(interval);
   }, [etapa]);
 
-  // CORREÇÃO: Reseta todos os campos no meio da animação de flip para evitar vazamento de dados entre abas
+  // CORREÇÃO: Força o ScrollView a zerar a posição e ir para o topo (0,0) quando o teclado fecha
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setIsKeyboardVisible(true),
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsKeyboardVisible(false);
+        // Força o reset da rolagem para o topo, eliminando a folga elástica do Android
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const handleFlip = () => {
     Keyboard.dismiss();
     const targetValue = isEspecialista ? 0 : 180;
@@ -97,7 +122,7 @@ export default function Cadastro() {
       setEspecialidade("");
       setCredenciais("");
       setBiografia("");
-    }, 250); // Roda exatamente aos 250ms (card a 90° de rotação)
+    }, 250);
   };
 
   const rotateY = flipAnim.interpolate({
@@ -189,6 +214,12 @@ export default function Cadastro() {
     );
   }
 
+  const canScroll = () => {
+    if (isEspecialista) return true;
+    if (isKeyboardVisible) return true;
+    return false;
+  };
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "#00BFA5" }}
@@ -199,9 +230,14 @@ export default function Cadastro() {
         behavior={Platform.select({ ios: "padding", android: "height" })}
       >
         <ScrollView
+          // ALTERADO: Adicionada a propriedade ref para linkar com o controle do topo
+          ref={scrollViewRef}
           contentContainerStyle={{ flexGrow: 1 }}
           style={{ backgroundColor: "#00BFA5" }}
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={canScroll()}
+          bounces={false}
+          overScrollMode="never"
         >
           <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
             <View style={styles.container}>
@@ -229,15 +265,15 @@ export default function Cadastro() {
                 </TouchableOpacity>
               </View>
 
-              <Image
-                source={require("@/src/assets/img1.png")}
-                style={styles.illustration}
-              />
-
               <Animated.View style={[{ flex: 1, transform: [{ rotateY }] }]}>
                 {!isEspecialista ? (
                   /* LADO A: Paciente */
                   <View style={styles.cardInternal}>
+                    <Image
+                      source={require("@/src/assets/paciente.png")}
+                      style={styles.pacienteIllustration}
+                    />
+
                     <Text style={styles.title}>Criar Conta</Text>
                     <Text style={[styles.subtitle, { opacity: 0.8 }]}>
                       Preencha os dados abaixo para começar.
@@ -283,6 +319,11 @@ export default function Cadastro() {
                       { transform: [{ rotateY: "180deg" }] },
                     ]}
                   >
+                    <Image
+                      source={require("@/src/assets/especialista.png")}
+                      style={styles.especialistaIllustration}
+                    />
+
                     <Text style={styles.title}>Especialista</Text>
                     <Text style={[styles.subtitle, { opacity: 0.8 }]}>
                       Insira seus dados profissionais abaixo.
@@ -388,7 +429,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   cardInternal: { flex: 1 },
-  illustration: { width: "100%", height: 220, resizeMode: "contain" },
+  pacienteIllustration: {
+    width: "100%",
+    height: 300,
+    resizeMode: "contain",
+    marginTop: -46,
+  },
+  especialistaIllustration: {
+    width: "100%",
+    height: 300,
+    resizeMode: "contain",
+    marginTop: -46,
+    marginBottom: 20,
+  },
   title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
   subtitle: { fontSize: 16, color: "#000000" },
   form: { marginTop: 24, gap: 12 },
