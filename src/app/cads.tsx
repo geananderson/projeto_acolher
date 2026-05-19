@@ -12,6 +12,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -71,6 +72,7 @@ export default function Cadastro() {
     return () => clearInterval(interval);
   }, [etapa]);
 
+  // CORREÇÃO: Reseta todos os campos no meio da animação de flip para evitar vazamento de dados entre abas
   const handleFlip = () => {
     Keyboard.dismiss();
     const targetValue = isEspecialista ? 0 : 180;
@@ -83,7 +85,19 @@ export default function Cadastro() {
 
     setTimeout(() => {
       setIsEspecialista(!isEspecialista);
-    }, 250);
+
+      // Limpa dados da aba Paciente
+      setNome("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+
+      // Limpa dados da aba Especialista
+      setCrp("");
+      setEspecialidade("");
+      setCredenciais("");
+      setBiografia("");
+    }, 250); // Roda exatamente aos 250ms (card a 90° de rotação)
   };
 
   const rotateY = flipAnim.interpolate({
@@ -92,19 +106,23 @@ export default function Cadastro() {
   });
 
   const handleCadastro = () => {
-    if (
-      nome.trim() === "" ||
-      email.trim() === "" ||
-      password.trim() === "" ||
-      confirmPassword.trim() === ""
-    ) {
-      Alert.alert("Aviso", "Preencha todos os campos para continuar.");
+    if (nome.trim() === "" || email.trim() === "" || password.trim() === "") {
+      Alert.alert(
+        "Aviso",
+        "Preencha os campos de nome, e-mail e senha para continuar.",
+      );
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert("Erro", "As senhas não coincidem.");
-      return;
+    if (!isEspecialista) {
+      if (confirmPassword.trim() === "") {
+        Alert.alert("Aviso", "Por favor, confirme a sua senha.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        Alert.alert("Erro", "As senhas não coincidem.");
+        return;
+      }
     }
 
     if (isEspecialista) {
@@ -115,7 +133,7 @@ export default function Cadastro() {
       ) {
         Alert.alert(
           "Aviso",
-          "Preencha os dados profissionais do especialista.",
+          "Preencha os dados profissionais obrigatórios (CRP, Especialidade e Biografia).",
         );
         return;
       }
@@ -187,7 +205,6 @@ export default function Cadastro() {
         >
           <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
             <View style={styles.container}>
-              {/* Header com botões ajustados para as bordas */}
               <View style={styles.headerContainer}>
                 <TouchableOpacity
                   onPress={() => router.back()}
@@ -196,7 +213,6 @@ export default function Cadastro() {
                   <Feather name="arrow-left" size={24} color="#ffffff" />
                 </TouchableOpacity>
 
-                {/* Botão encostado na direita com margem compensada */}
                 <TouchableOpacity
                   onPress={handleFlip}
                   style={styles.toggleButton}
@@ -218,10 +234,9 @@ export default function Cadastro() {
                 style={styles.illustration}
               />
 
-              {/* Bloco Animado do Formulário */}
               <Animated.View style={[{ flex: 1, transform: [{ rotateY }] }]}>
                 {!isEspecialista ? (
-                  /* LADO A: Formulário Comum */
+                  /* LADO A: Paciente */
                   <View style={styles.cardInternal}>
                     <Text style={styles.title}>Criar Conta</Text>
                     <Text style={[styles.subtitle, { opacity: 0.8 }]}>
@@ -261,7 +276,7 @@ export default function Cadastro() {
                     </View>
                   </View>
                 ) : (
-                  /* LADO B: Formulário Especialista */
+                  /* LADO B: Especialista */
                   <View
                     style={[
                       styles.cardInternal,
@@ -306,11 +321,23 @@ export default function Cadastro() {
                         value={credenciais}
                         onChangeText={setCredenciais}
                       />
-                      <Input
-                        placeholder="Biografia / Resumo"
-                        value={biografia}
-                        onChangeText={setBiografia}
-                      />
+
+                      <View style={styles.bioContainer}>
+                        <TextInput
+                          placeholder="Biografia / Resumo"
+                          placeholderTextColor="#a0a0a0"
+                          value={biografia}
+                          onChangeText={setBiografia}
+                          multiline={true}
+                          numberOfLines={4}
+                          maxLength={500}
+                          style={styles.bioInput}
+                        />
+                      </View>
+
+                      <Text style={styles.counterText}>
+                        {biografia.length}/500 caracteres
+                      </Text>
 
                       <Button
                         label="Cadastrar Especialista"
@@ -337,7 +364,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 25,
     marginBottom: 40,
-    width: "100%", // Força o container a ocupar a largura total do padding interno
+    width: "100%",
   },
   backButton: { marginLeft: -12, padding: 4 },
   toggleButton: {
@@ -348,7 +375,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 20,
     gap: 6,
-    marginRight: -12, // CORREÇÃO: Anula o padding do container jogando a pílula para a borda extrema direita
+    marginRight: -12,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -363,8 +390,31 @@ const styles = StyleSheet.create({
   cardInternal: { flex: 1 },
   illustration: { width: "100%", height: 220, resizeMode: "contain" },
   title: { fontSize: 32, fontWeight: "900", color: "#ffffff" },
-  subtitle: { fontSize: 16, color: "#ffffff" },
+  subtitle: { fontSize: 16, color: "#000000" },
   form: { marginTop: 24, gap: 12 },
+
+  bioContainer: {
+    width: "100%",
+    height: 110,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  bioInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333333",
+    textAlignVertical: "top",
+  },
+  counterText: {
+    color: "#ffffff",
+    fontSize: 11,
+    textAlign: "right",
+    marginTop: -4,
+    opacity: 0.8,
+  },
+
   buttonDefault: {
     width: "100%",
     height: 48,

@@ -4,15 +4,17 @@ import {
   Alert,
   Animated,
   Image,
+  Keyboard, // ADICIONADO: Importado para fechar o teclado e tirar o foco
   KeyboardAvoidingView,
   Platform,
+  Pressable, // ADICIONADO: Importado para capturar o clique fora dos inputs
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"; // ADICIONADO: Importação do SafeArea
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "../components/Button";
 import { Input } from "../components/input";
@@ -101,7 +103,6 @@ export default function Login() {
   }
 
   return (
-    // CORREÇÃO: Envelopado com o SafeAreaView forçando as bordas laterais e inferior, matando a faixa branca nativa do Android
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "#00BFA5" }}
       edges={["right", "left", "bottom"]}
@@ -115,46 +116,49 @@ export default function Login() {
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.container}>
-            <Image
-              source={require("@/src/assets/img1.png")}
-              style={styles.illustration}
-            />
-            <Text style={styles.title}>Entrar</Text>
-            <Text style={styles.subtitle}>
-              Acesse sua conta com e-mail e senha.
-            </Text>
+          {/* CORREÇÃO: Pressable para fechar teclado e sumir com o cursor piscando ao clicar fora */}
+          <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+            <View style={styles.container}>
+              <Image
+                source={require("@/src/assets/img1.png")}
+                style={styles.illustration}
+              />
+              <Text style={styles.title}>Entrar</Text>
+              <Text style={styles.subtitle}>
+                Acesse sua conta com e-mail e senha.
+              </Text>
 
-            <View style={styles.form}>
-              <Input
-                placeholder="E-mail"
-                keyboardType="email-address"
-                placeholderTextColor="#555"
-                value={email}
-                onChangeText={setEmail}
-              />
-              <Input
-                placeholder="Senha"
-                secureTextEntry
-                placeholderTextColor="#555"
-                value={password}
-                onChangeText={setPassword}
-              />
+              <View style={styles.form}>
+                <Input
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  placeholderTextColor="#555"
+                  value={email}
+                  onChangeText={setEmail}
+                />
+                <Input
+                  placeholder="Senha"
+                  secureTextEntry
+                  placeholderTextColor="#555"
+                  value={password}
+                  onChangeText={setPassword}
+                />
 
-              <Button
-                label="Entrar"
-                onPress={handleLogin}
-                style={styles.buttonDefault}
-              />
+                <Button
+                  label="Entrar"
+                  onPress={handleLogin}
+                  style={styles.buttonDefault}
+                />
+              </View>
+
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Não tem uma conta? </Text>
+                <TouchableOpacity onPress={() => router.push("/cads")}>
+                  <Text style={styles.footerLink}>Cadastre-se aqui.</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Não tem uma conta? </Text>
-              <TouchableOpacity onPress={() => router.push("/cads")}>
-                <Text style={styles.footerLink}>Cadastre-se aqui.</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
