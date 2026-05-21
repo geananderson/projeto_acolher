@@ -3,13 +3,16 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     FlatList,
+    Modal,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Base de dados completa compartilhada no arquivo
 const AGENDA_COMPLETA = [
   {
     id: "1",
@@ -17,6 +20,10 @@ const AGENDA_COMPLETA = [
     horario: "08:00",
     tipo: "Primeira Consulta",
     status: "Confirmado",
+    idade: "22 anos",
+    queixa: "Ansiedade com entregas da faculdade.",
+    historicoClinico:
+      "Paciente relata estresse com prazos acadêmicos. Apresenta boa evolução com técnicas de respiração.",
   },
   {
     id: "2",
@@ -24,6 +31,10 @@ const AGENDA_COMPLETA = [
     horario: "09:00",
     tipo: "Retorno",
     status: "Confirmado",
+    idade: "24 anos",
+    queixa: "Acompanhamento de foco e TDAH.",
+    historicoClinico:
+      "Foco melhorou após adjustments na rotina de estudos. Manter estratégias visuais.",
   },
   {
     id: "3",
@@ -31,6 +42,10 @@ const AGENDA_COMPLETA = [
     horario: "10:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
+    idade: "28 anos",
+    queixa: "Transição de carreira e estresse profissional.",
+    historicoClinico:
+      "Sessão focada em mapeamento de competências. Ansiedade controlada.",
   },
   {
     id: "4",
@@ -38,6 +53,10 @@ const AGENDA_COMPLETA = [
     horario: "11:00",
     tipo: "Sessão de Terapia",
     status: "Pendente",
+    idade: "21 anos",
+    queixa: "Insônia crônica.",
+    historicoClinico:
+      "Primeiras queixas sobre higiene do sono. Avaliar evolução na próxima semana.",
   },
   {
     id: "5",
@@ -45,6 +64,10 @@ const AGENDA_COMPLETA = [
     horario: "13:00",
     tipo: "Retorno",
     status: "Confirmado",
+    idade: "26 anos",
+    queixa: "Evolução clínica positiva, regulação emotional.",
+    historicoClinico:
+      "Paciente demonstra alto grau de autoconhecimento. Alta clínica em discussão.",
   },
   {
     id: "6",
@@ -52,6 +75,10 @@ const AGENDA_COMPLETA = [
     horario: "14:00",
     tipo: "Primeira Consulta",
     status: "Pendente",
+    idade: "23 anos",
+    queixa: "Busca autoconhecimento.",
+    historicoClinico:
+      "Fase de entrevista inicial realizada. Estabelecendo rapport.",
   },
   {
     id: "7",
@@ -59,6 +86,10 @@ const AGENDA_COMPLETA = [
     horario: "15:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
+    idade: "30 anos",
+    queixa: "Gestão de tempo e Burnout.",
+    historicoClinico:
+      "Orientado a pausas programadas no trabalho. Redução de sintomas físicos de estresse.",
   },
   {
     id: "8",
@@ -66,6 +97,10 @@ const AGENDA_COMPLETA = [
     horario: "16:00",
     tipo: "Retorno",
     status: "Confirmado",
+    idade: "25 anos",
+    queixa: "Superação de luto recente.",
+    historicoClinico:
+      "Espaço de escuta acolhedora. Paciente processando sentimentos de forma saudável.",
   },
   {
     id: "9",
@@ -73,6 +108,9 @@ const AGENDA_COMPLETA = [
     horario: "17:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
+    idade: "29 anos",
+    queixa: "Dificuldade de comunicação interpessoal.",
+    historicoClinico: "Treino de assertividade iniciado durante a sessão.",
   },
   {
     id: "10",
@@ -80,25 +118,180 @@ const AGENDA_COMPLETA = [
     horario: "18:00",
     tipo: "Retorno",
     status: "Pendente",
+    idade: "22 anos",
+    queixa: "Ansiedade social.",
+    historicoClinico:
+      "Evitação de ambientes públicos reportada. Traçando plano de exposição gradual.",
   },
 ];
 
+// Deixamos o próprio TypeScript deduzir a estrutura sem engasgar
+const AGENDAS_POR_DIA = {
+  Hoje: [
+    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Gean Anderson" },
+    { id: "h2", hora: "09:00", status: "Ocupado", paciente: "José Matheus" },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Marcos Gabriel" },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Maycon Mizael" },
+    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
+    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Tássio Ivanil" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Victor Rennan" },
+    { id: "h8", hora: "15:00", status: "Disponível", paciente: "" },
+    { id: "h9", hora: "16:00", status: "Disponível", paciente: "" },
+    {
+      id: "h10",
+      hora: "17:00",
+      status: "Bloqueado",
+      paciente: "Compromisso pessoal",
+    },
+  ],
+  Amanhã: [
+    { id: "h1", hora: "08:00", status: "Disponível", paciente: "" },
+    {
+      id: "h2",
+      hora: "09:00",
+      status: "Ocupado",
+      paciente: "Vinicius Albuquerque",
+    },
+    { id: "h3", hora: "10:00", status: "Disponível", paciente: "" },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Wesley Oliveira" },
+    {
+      id: "h5",
+      hora: "12:00",
+      status: "Bloqueado",
+      paciente: "Almoço Clínico",
+    },
+    { id: "h6", hora: "13:00", status: "Disponível", paciente: "" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "William Santos" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Yago Bezerra" },
+    { id: "h9", hora: "16:00", status: "Disponível", paciente: "" },
+    { id: "h10", hora: "17:00", status: "Disponível", paciente: "" },
+  ],
+  Seg: [
+    {
+      id: "h1",
+      hora: "08:00",
+      status: "Bloqueado",
+      paciente: "Reunião de Equipe",
+    },
+    {
+      id: "h2",
+      hora: "09:00",
+      status: "Bloqueado",
+      paciente: "Reunião de Equipe",
+    },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Gean Anderson" },
+    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
+    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
+    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Marcos Gabriel" },
+    { id: "h7", hora: "14:00", status: "Disponível", paciente: "" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Tássio Ivanil" },
+    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "Wesley Oliveira" },
+    { id: "h10", hora: "17:00", status: "Disponível", paciente: "" },
+  ],
+  Ter: [
+    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "José Matheus" },
+    { id: "h2", hora: "09:00", status: "Disponível", paciente: "" },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Maycon Mizael" },
+    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
+    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
+    { id: "h6", hora: "13:00", status: "Bloqueado", paciente: "Supervisão" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Victor Rennan" },
+    { id: "h8", hora: "15:00", status: "Disponível", paciente: "" },
+    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "William Santos" },
+    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Yago Bezerra" },
+  ],
+  Qua: [
+    { id: "h1", hora: "08:00", status: "Disponível", paciente: "" },
+    { id: "h2", hora: "09:00", status: "Disponível", paciente: "" },
+    {
+      id: "h3",
+      hora: "10:00",
+      status: "Ocupado",
+      paciente: "Vinicius Albuquerque",
+    },
+    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
+    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
+    { id: "h6", hora: "13:00", status: "Disponível", paciente: "" },
+    { id: "h7", hora: "14:00", status: "Disponível", paciente: "" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Gean Anderson" },
+    { id: "h9", hora: "16:00", status: "Bloqueado", paciente: "Particular" },
+    { id: "h10", hora: "17:00", status: "Bloqueado", paciente: "Particular" },
+  ],
+};
+
 export default function DashboardEspecialista() {
   const router = useRouter();
-  const [expandido, setExpandido] = useState(false);
 
-  const dadosExibidos = expandido
-    ? AGENDA_COMPLETA
-    : AGENDA_COMPLETA.slice(0, 5);
+  const [telaAtiva, setTelaAtiva] = useState<
+    "home" | "prontuarios" | "horarios"
+  >("home");
+
+  // Estados da Agenda (Home)
+  const [expandido, setExpandido] = useState(false);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [pacienteSelecionado, setPacienteSelecionado] = useState<any>(null);
+
+  // Estados dos Prontuários
+  const [pesquisaProntuario, setPesquisaProntuario] = useState("");
+  const [verHistoricoProntuario, setVerHistoricoProntuario] =
+    useState<any>(null);
+
+  // Estados da Tela de Horários
+  const [diaSelecionado, setDiaSelecionado] = useState<
+    "Hoje" | "Amanhã" | "Seg" | "Ter" | "Qua"
+  >("Hoje");
+  const [gradeHorarios, setGradeHorarios] = useState<any>(AGENDAS_POR_DIA);
+
+  const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 5);
+
+  const prontuariosFiltrados = AGENDA_COMPLETA.filter((p) =>
+    p.paciente.toLowerCase().includes(pesquisaProntuario.toLowerCase()),
+  );
+
+  // Modifica apenas o horário do dia ativo usando o estado mapeado como any
+  const handleToggleHorario = (id: string) => {
+    setGradeHorarios((prev: any) => ({
+      ...prev,
+      [diaSelecionado]: prev[diaSelecionado].map((item: any) => {
+        if (item.id === id) {
+          if (item.status === "Disponível") {
+            return {
+              ...item,
+              status: "Bloqueado",
+              paciente: "Intervalo Clínico",
+            };
+          } else if (item.status === "Bloqueado") {
+            return { ...item, status: "Disponível", paciente: "" };
+          }
+        }
+        return item;
+      }),
+    }));
+  };
+
+  const horariosExibidos = gradeHorarios[diaSelecionado] || [];
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "right", "left"]}>
-      {/* 1. CABEÇALHO CLÍNICO */}
+      {/* CABEÇALHO CLÍNICO DINÂMICO */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.welcomeText}>Olá, Dr(a).</Text>
-          <Text style={styles.doctorName}>Painel Clínico</Text>
-        </View>
+        {telaAtiva === "home" ? (
+          <View>
+            <Text style={styles.welcomeText}>Olá, Dr(a).</Text>
+            <Text style={styles.doctorName}>Painel Clínico</Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.backHeaderButton}
+            onPress={() => setTelaAtiva("home")}
+          >
+            <Feather name="arrow-left" size={24} color="#FFFFFF" />
+            <Text style={styles.doctorNameHeader}>
+              {telaAtiva === "prontuarios" ? "Prontuários" : "Meus Horários"}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => router.replace("/")}
@@ -107,155 +300,403 @@ export default function DashboardEspecialista() {
         </TouchableOpacity>
       </View>
 
-      {/* 2. CORPO PRINCIPAL */}
+      {/* CORPO PRINCIPAL */}
       <View style={styles.content}>
-        {/* CARDS DE MÉTRICAS (KPIs) */}
-        <View style={styles.metricsContainer}>
-          <View style={styles.metricCard}>
-            <Feather name="calendar" size={20} color="#00BFA5" />
-            <Text style={styles.metricValue}>{AGENDA_COMPLETA.length}</Text>
-            <Text style={styles.metricLabel}>Sessões Hoje</Text>
-          </View>
-
-          <View style={styles.metricCard}>
-            <Feather name="users" size={20} color="#00238e" />
-            <Text style={styles.metricValue}>32</Text>
-            <Text style={styles.metricLabel}>Pacientes</Text>
-          </View>
-
-          <View style={styles.metricCard}>
-            <Feather name="trending-up" size={20} color="#FF9100" />
-            <Text style={styles.metricValue}>96%</Text>
-            <Text style={styles.metricLabel}>Presença</Text>
-          </View>
-        </View>
-
-        {/* SEÇÃO DE AÇÕES RÁPIDAS */}
-        <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}>
-              <Feather name="file-text" size={20} color="#00BFA5" />
+        {/* --- TELA 1: HOME --- */}
+        {telaAtiva === "home" && (
+          <>
+            <View style={styles.metricsContainer}>
+              <View style={styles.metricCard}>
+                <Feather name="calendar" size={20} color="#00BFA5" />
+                <Text style={styles.metricValue}>{AGENDA_COMPLETA.length}</Text>
+                <Text style={styles.metricLabel}>Sessões Hoje</Text>
+              </View>
+              <View style={styles.metricCard}>
+                <Feather name="users" size={20} color="#00238e" />
+                <Text style={styles.metricValue}>32</Text>
+                <Text style={styles.metricLabel}>Pacientes</Text>
+              </View>
+              <View style={styles.metricCard}>
+                <Feather name="trending-up" size={20} color="#FF9100" />
+                <Text style={styles.metricValue}>96%</Text>
+                <Text style={styles.metricLabel}>Presença</Text>
+              </View>
             </View>
-            <Text style={styles.actionText}>Prontuários</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={[styles.iconCircle, { backgroundColor: "#E8EAF6" }]}>
-              <Feather name="clock" size={20} color="#00238e" />
+            <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+            <View style={styles.actionsGrid}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => setTelaAtiva("prontuarios")}
+              >
+                <View
+                  style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}
+                >
+                  <Feather name="file-text" size={20} color="#00BFA5" />
+                </View>
+                <Text style={styles.actionText}>Prontuários</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => setTelaAtiva("horarios")}
+              >
+                <View
+                  style={[styles.iconCircle, { backgroundColor: "#E8EAF6" }]}
+                >
+                  <Feather name="clock" size={20} color="#00238e" />
+                </View>
+                <Text style={styles.actionText}>Meus Horários</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton}>
+                <View
+                  style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}
+                >
+                  <Feather name="dollar-sign" size={20} color="#FF9100" />
+                </View>
+                <Text style={styles.actionText}>Finanças</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.actionText}>Meus Horários</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}>
-              <Feather name="dollar-sign" size={20} color="#FF9100" />
+            <View style={styles.agendaWrapper}>
+              <View style={styles.agendaHeader}>
+                <Text style={styles.agendaSectionTitle}>Agenda de Hoje</Text>
+                <View style={styles.countBadge}>
+                  <Text style={styles.countIndicator}>
+                    {dadosAgenda.length}/{AGENDA_COMPLETA.length}
+                  </Text>
+                </View>
+              </View>
+
+              <FlatList
+                data={dadosAgenda}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingBottom: 48,
+                }}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.appointmentCard}
+                    onPress={() => {
+                      setPacienteSelecionado(item);
+                      setModalVisivel(true);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.cardHeaderRow}>
+                      <View style={styles.appointmentInfo}>
+                        <Feather
+                          name="clock"
+                          size={15}
+                          color="#00BFA5"
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text style={styles.appointmentTime}>
+                          {item.horario}
+                        </Text>
+                        <Text style={styles.appointmentPatient}>
+                          {" "}
+                          - {item.paciente}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.statusTag,
+                          {
+                            backgroundColor:
+                              item.status === "Confirmado"
+                                ? "#E0F2F1"
+                                : "#FFEBEE",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color:
+                                item.status === "Confirmado"
+                                  ? "#00BFA5"
+                                  : "#D32F2F",
+                            },
+                          ]}
+                        >
+                          {item.status}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.appointmentType}>{item.tipo}</Text>
+                  </TouchableOpacity>
+                )}
+                ListFooterComponent={
+                  !expandido ? (
+                    <TouchableOpacity
+                      style={styles.toggleAgendaButton}
+                      onPress={() => setExpandido(true)}
+                    >
+                      <Text style={styles.toggleAgendaText}>
+                        Mostrar agenda completa
+                      </Text>
+                      <Feather name="chevron-down" size={16} color="#00238e" />
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.toggleAgendaButton}
+                      onPress={() => setExpandido(false)}
+                    >
+                      <Text
+                        style={[styles.toggleAgendaText, { color: "#D32F2F" }]}
+                      >
+                        Recolher agenda
+                      </Text>
+                      <Feather name="chevron-up" size={16} color="#D32F2F" />
+                    </TouchableOpacity>
+                  )
+                }
+              />
             </View>
-            <Text style={styles.actionText}>Finanças</Text>
-          </TouchableOpacity>
-        </View>
+          </>
+        )}
 
-        {/* 3. CONTAINER DESTACADO DA AGENDA */}
-        <View style={styles.agendaWrapper}>
-          <View style={styles.agendaHeader}>
-            <Text style={styles.agendaSectionTitle}>Agenda de Hoje</Text>
-            <View style={styles.countBadge}>
-              <Text style={styles.countIndicator}>
-                {dadosExibidos.length}/{AGENDA_COMPLETA.length}
-              </Text>
+        {/* --- TELA 2: PRONTUÁRIOS --- */}
+        {telaAtiva === "prontuarios" && (
+          <View style={{ flex: 1 }}>
+            <View style={styles.searchContainer}>
+              <Feather
+                name="search"
+                size={18}
+                color="#94A3B8"
+                style={{ marginRight: 8 }}
+              />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Buscar paciente pelo nome..."
+                placeholderTextColor="#94A3B8"
+                value={pesquisaProntuario}
+                onChangeText={setPesquisaProntuario}
+              />
             </View>
-          </View>
-
-          <FlatList
-            data={dadosExibidos}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            /* SOLUÇÃO DO PROBLEMA: Aumentado o paddingBottom para empurrar o botão para cima */
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48 }}
-            renderItem={({ item }) => (
-              <View style={styles.appointmentCard}>
-                <View style={styles.cardHeaderRow}>
-                  <View style={styles.appointmentInfo}>
-                    <Feather
-                      name="clock"
-                      size={15}
-                      color="#00BFA5"
-                      style={{ marginRight: 6 }}
-                    />
-                    <Text style={styles.appointmentTime}>{item.horario}</Text>
-                    <Text style={styles.appointmentPatient}>
-                      {" "}
-                      - {item.paciente}
+            <FlatList
+              data={prontuariosFiltrados}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              renderItem={({ item }) => (
+                <View style={styles.prontuarioCard}>
+                  <View style={styles.prontuarioMainInfo}>
+                    <Text style={styles.prontuarioPatientName}>
+                      {item.paciente}
+                    </Text>
+                    <Text style={styles.prontuarioPatientAge}>
+                      Idade: {item.idade}
                     </Text>
                   </View>
+                  {verHistoricoProntuario === item.id ? (
+                    <View style={styles.historicoExpandidoBox}>
+                      <Text style={styles.historicoTitle}>
+                        Evolução Clínica Recente:
+                      </Text>
+                      <Text style={styles.historicoText}>
+                        {item.historicoClinico}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.fecharProntuarioBtn}
+                        onPress={() => setVerHistoricoProntuario(null)}
+                      >
+                        <Text style={styles.fecharProntuarioBtnText}>
+                          Fechar Prontuário
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.abrirProntuarioBtn}
+                      onPress={() => setVerHistoricoProntuario(item.id)}
+                    >
+                      <Feather
+                        name="folder"
+                        size={16}
+                        color="#00238e"
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text style={styles.abrirProntuarioBtnText}>
+                        Acessar Prontuário
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+        )}
 
-                  <View
+        {/* --- TELA 3: MEUS HORÁRIOS --- */}
+        {telaAtiva === "horarios" && (
+          <View style={{ flex: 1 }}>
+            {/* SELETOR DE DIAS */}
+            <View style={styles.daysContainer}>
+              {(["Hoje", "Amanhã", "Seg", "Ter", "Qua"] as const).map((dia) => (
+                <TouchableOpacity
+                  key={dia}
+                  style={[
+                    styles.dayButton,
+                    diaSelecionado === dia && styles.dayButtonActive,
+                  ]}
+                  onPress={() => setDiaSelecionado(dia)}
+                >
+                  <Text
                     style={[
-                      styles.statusTag,
-                      {
-                        backgroundColor:
-                          item.status === "Confirmado" ? "#E0F2F1" : "#FFEBEE",
-                      },
+                      styles.dayButtonText,
+                      diaSelecionado === dia && styles.dayButtonTextActive,
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.statusText,
-                        {
-                          color:
-                            item.status === "Confirmado"
-                              ? "#00BFA5"
-                              : "#D32F2F",
-                        },
-                      ]}
-                    >
-                      {item.status}
-                    </Text>
-                  </View>
+                    {dia}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.helperText}>
+              Toque nos horários vagos para bloquear/liberar atendimentos.
+            </Text>
+
+            <FlatList
+              data={horariosExibidos}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 30 }}
+              renderItem={({ item }) => (
+                <View style={styles.rowHorario}>
+                  <Text style={styles.horaLabel}>{item.hora}</Text>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.statusBoxHorario,
+                      item.status === "Ocupado" && styles.boxOcupado,
+                      item.status === "Disponível" && styles.boxDisponivel,
+                      item.status === "Bloqueado" && styles.boxBloqueado,
+                    ]}
+                    onPress={() => handleToggleHorario(item.id)}
+                    disabled={item.status === "Ocupado"}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.statusBoxFlex}>
+                      <Text
+                        style={[
+                          styles.statusBoxText,
+                          item.status === "Ocupado" && styles.txtOcupado,
+                          item.status === "Disponível" && styles.txtDisponivel,
+                          item.status === "Bloqueado" && styles.txtBloqueado,
+                        ]}
+                      >
+                        {item.status === "Ocupado"
+                          ? `Sessão: ${item.paciente}`
+                          : item.status}
+                      </Text>
+                      {item.status !== "Ocupado" && (
+                        <Feather
+                          name={
+                            item.status === "Disponível" ? "unlock" : "lock"
+                          }
+                          size={14}
+                          color={
+                            item.status === "Disponível" ? "#00BFA5" : "#D32F2F"
+                          }
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.appointmentType}>{item.tipo}</Text>
+              )}
+            />
+          </View>
+        )}
+      </View>
+
+      {/* MODAL DETALHES DO AGENDAMENTO */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisivel}
+        onRequestClose={() => setModalVisivel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Detalhes do Agendamento</Text>
+              <TouchableOpacity onPress={() => setModalVisivel(false)}>
+                <Feather name="x" size={24} color="#334155" />
+              </TouchableOpacity>
+            </View>
+
+            {pacienteSelecionado && (
+              <View style={styles.modalBody}>
+                <Text style={styles.modalPatientName}>
+                  {pacienteSelecionado.paciente}
+                </Text>
+                <Text style={styles.modalPatientMeta}>
+                  Idade: {pacienteSelecionado.idade} | Horário:{" "}
+                  {pacienteSelecionado.horario}
+                </Text>
+                <View style={styles.infoBox}>
+                  <Text style={styles.infoBoxTitle}>
+                    Última queixa / Observações:
+                  </Text>
+                  <Text style={styles.infoBoxText}>
+                    {pacienteSelecionado.queixa}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.modalActionButtonPrimary}
+                  onPress={() => {
+                    setModalVisivel(false);
+                    router.push("/chat/chat");
+                  }}
+                >
+                  <Feather
+                    name="message-square"
+                    size={18}
+                    color="#FFFFFF"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text style={styles.modalActionButtonText}>
+                    Abrir Chat com Paciente
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalActionButtonSecondary}
+                  onPress={() => {
+                    setModalVisivel(false);
+                    setTelaAtiva("prontuarios");
+                    setVerHistoricoProntuario(pacienteSelecionado.id);
+                  }}
+                >
+                  <Feather
+                    name="edit-3"
+                    size={18}
+                    color="#00238e"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={[styles.modalActionButtonText, { color: "#00238e" }]}
+                  >
+                    Ir para o Prontuário
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
-            ListFooterComponent={
-              !expandido ? (
-                <TouchableOpacity
-                  style={styles.toggleAgendaButton}
-                  onPress={() => setExpandido(true)}
-                >
-                  <Text style={styles.toggleAgendaText}>
-                    Mostrar agenda completa
-                  </Text>
-                  <Feather name="chevron-down" size={16} color="#00238e" />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.toggleAgendaButton}
-                  onPress={() => setExpandido(false)}
-                >
-                  <Text style={[styles.toggleAgendaText, { color: "#D32F2F" }]}>
-                    Recolher agenda
-                  </Text>
-                  <Feather name="chevron-up" size={16} color="#D32F2F" />
-                </TouchableOpacity>
-              )
-            }
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                Nenhuma consulta agendada para hoje.
-              </Text>
-            }
-          />
+          </View>
         </View>
-      </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#00BFA5",
-  },
+  container: { flex: 1, backgroundColor: "#00BFA5" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -263,16 +704,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 20,
   },
-  welcomeText: {
-    fontSize: 14,
-    color: "#ffffff",
-    opacity: 0.8,
-  },
-  doctorName: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: "#ffffff",
-  },
+  welcomeText: { fontSize: 14, color: "#ffffff", opacity: 0.8 },
+  doctorName: { fontSize: 24, fontWeight: "900", color: "#ffffff" },
   logoutButton: {
     padding: 8,
     backgroundColor: "rgba(255, 255, 255, 0.2)",
@@ -340,11 +773,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  actionText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#475569",
-  },
+  actionText: { fontSize: 12, fontWeight: "600", color: "#475569" },
   agendaWrapper: {
     flex: 1,
     backgroundColor: "#F1F5F9",
@@ -360,22 +789,14 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     marginBottom: 12,
   },
-  agendaSectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#334155",
-  },
+  agendaSectionTitle: { fontSize: 16, fontWeight: "700", color: "#334155" },
   countBadge: {
     backgroundColor: "#E2E8F0",
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 12,
   },
-  countIndicator: {
-    fontSize: 11,
-    color: "#475569",
-    fontWeight: "700",
-  },
+  countIndicator: { fontSize: 11, color: "#475569", fontWeight: "700" },
   appointmentCard: {
     backgroundColor: "#FFFFFF",
     padding: 16,
@@ -395,34 +816,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 6,
   },
-  appointmentInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  appointmentTime: {
-    fontWeight: "bold",
-    color: "#00BFA5",
-    fontSize: 14,
-  },
-  appointmentPatient: {
-    fontWeight: "700",
-    color: "#1E293B",
-    fontSize: 14,
-  },
-  appointmentType: {
-    fontSize: 13,
-    color: "#64748B",
-    marginLeft: 21,
-  },
-  statusTag: {
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
+  appointmentInfo: { flexDirection: "row", alignItems: "center" },
+  appointmentTime: { fontWeight: "bold", color: "#00BFA5", fontSize: 14 },
+  appointmentPatient: { fontWeight: "700", color: "#1E293B", fontSize: 14 },
+  appointmentType: { fontSize: 13, color: "#64748B", marginLeft: 21 },
+  statusTag: { paddingVertical: 3, paddingHorizontal: 8, borderRadius: 8 },
+  statusText: { fontSize: 11, fontWeight: "700" },
   toggleAgendaButton: {
     flexDirection: "row",
     justifyContent: "center",
@@ -442,4 +841,189 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontStyle: "italic",
   },
+
+  /* ESTILOS DA TELA DE PRONTUÁRIOS */
+  backHeaderButton: { flexDirection: "row", alignItems: "center", gap: 12 },
+  doctorNameHeader: { fontSize: 22, fontWeight: "900", color: "#ffffff" },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 46,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  searchInput: { flex: 1, color: "#1E293B", fontSize: 14, fontWeight: "500" },
+  prontuarioCard: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  prontuarioMainInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  prontuarioPatientName: { fontSize: 16, fontWeight: "700", color: "#1E293B" },
+  prontuarioPatientAge: { fontSize: 13, color: "#64748B", fontWeight: "600" },
+  abrirProntuarioBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E8EAF6",
+    height: 38,
+    borderRadius: 10,
+  },
+  abrirProntuarioBtnText: { color: "#00238e", fontSize: 13, fontWeight: "700" },
+  historicoExpandidoBox: {
+    marginTop: 8,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 12,
+    padding: 14,
+  },
+  historicoTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#475569",
+    marginBottom: 4,
+  },
+  historicoText: {
+    fontSize: 14,
+    color: "#334155",
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  fecharProntuarioBtn: {
+    backgroundColor: "#FFEBEE",
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+  },
+  fecharProntuarioBtnText: {
+    color: "#D32F2F",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  /* ESTILOS MEUS HORÁRIOS */
+  daysContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  dayButton: {
+    backgroundColor: "#F1F5F9",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    minWidth: 60,
+    alignItems: "center",
+  },
+  dayButtonActive: { backgroundColor: "#00BFA5" },
+  dayButtonText: { fontSize: 13, fontWeight: "700", color: "#475569" },
+  dayButtonTextActive: { color: "#FFFFFF" },
+  helperText: {
+    fontSize: 12,
+    color: "#64748B",
+    fontStyle: "italic",
+    marginBottom: 16,
+  },
+  rowHorario: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 14,
+  },
+  horaLabel: { fontSize: 15, fontWeight: "700", color: "#334155", width: 50 },
+  statusBoxHorario: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  statusBoxFlex: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statusBoxText: { fontSize: 14, fontWeight: "600" },
+  boxOcupado: { backgroundColor: "#E8EAF6", borderColor: "#C5CAE9" },
+  boxDisponivel: { backgroundColor: "#E0F2F1", borderColor: "#B2DFDB" },
+  boxBloqueado: { backgroundColor: "#FFEBEE", borderColor: "#FFCDD2" },
+  txtOcupado: { color: "#00238e", fontWeight: "700" },
+  txtDisponivel: { color: "#00BFA5" },
+  txtBloqueado: { color: "#D32F2F" },
+
+  /* ESTILOS DO MODAL */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContainer: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: "80%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#F1F5F9",
+    paddingBottom: 12,
+  },
+  modalTitle: { fontSize: 16, fontWeight: "700", color: "#64748B" },
+  modalBody: { marginTop: 16 },
+  modalPatientName: { fontSize: 22, fontWeight: "900", color: "#1E293B" },
+  modalPatientMeta: { fontSize: 14, color: "#64748B", marginTop: 4 },
+  infoBox: {
+    backgroundColor: "#F8FAFC",
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  infoBoxTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#475569",
+    marginBottom: 6,
+  },
+  infoBoxText: { fontSize: 14, color: "#334155", lineHeight: 20 },
+  modalActionButtonPrimary: {
+    backgroundColor: "#00238e",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 48,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  modalActionButtonSecondary: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#00238e",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 48,
+    borderRadius: 12,
+  },
+  modalActionButtonText: { color: "#FFFFFF", fontSize: 15, fontWeight: "700" },
 });
