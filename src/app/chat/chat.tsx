@@ -13,10 +13,11 @@ import {
 } from "react-native";
 
 // 1. Dados de teste (as mensagens que já aparecem na tela)
-const MENSAGENS_INICIAIS = [
-  { id: "1", text: "Olá! Como posso te ajudar hoje?", fromMe: false },
-  { id: "2", text: "Oi! Estou me sentindo um pouco ansioso.", fromMe: true },
-];
+const MENSAGENS_INICIAIS: {
+  id: string;
+  text: string;
+  fromMe: boolean;
+}[] = [];
 
 export default function Chat() {
   const router = useRouter();
