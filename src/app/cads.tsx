@@ -23,7 +23,7 @@ import { Input } from "../components/input";
 
 const FRASES = [
   "Sua jornada para o bem-estar começa aqui.",
-  "Estamos preparando um espaço seguro para você.",
+  "Estamos preparando um space seguro para você.",
   "Cuidar de si é o melhor investimento.",
   "Quase pronto! Vamos começar essa caminhada juntos.",
 ];
@@ -398,7 +398,12 @@ export default function Cadastro() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#00BFA5", padding: 32 },
+  container: {
+    flex: 1,
+    backgroundColor: "#00BFA5",
+    padding: 32,
+    paddingBottom: Platform.OS === "android" ? 50 : 32,
+  },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -453,6 +458,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "#000000",
   },
   bioInput: {
     flex: 1,
