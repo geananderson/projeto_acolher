@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FlatList,
     KeyboardAvoidingView,
@@ -19,10 +19,21 @@ const MENSAGENS_INICIAIS: {
   fromMe: boolean;
 }[] = [];
 
-export default function Chat() {
+export default function Chat() {             
   const router = useRouter();
   const [mensagens, setMensagens] = useState(MENSAGENS_INICIAIS);
   const [texto, setTexto] = useState("");
+  const [etapa, setEtapa] = useState(1);
+
+  useEffect(() => {
+  const mensagemInicial = {
+    id: 'boas_vidas',
+    text: "Olá! Seja muito bem-vindo. 😊\nQual é o seu nome?",
+    fromMe: false,
+  };
+
+  setMensagens([mensagemInicial]); 
+  }, []); 
 
   // 2. Função para enviar a mensagem
   const enviarMensagem = () => {
@@ -36,13 +47,55 @@ export default function Chat() {
 
     setMensagens([...mensagens, novaMensagem]); // Adiciona a nova na lista
     setTexto(""); // Limpa o campo de digitar
+    
+    if (etapa === 1) {
+      const respostaRobo = {
+        id: Math.random().toString(),
+        text: "Prazer em te conhecer, " + texto + "! Como você está se sentindo hoje?",
+        fromMe: false,
+      };
+      
+      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      setEtapa(2);
+    }
+    else if (etapa === 2) {
+      const respostaRobo = {
+        id: Math.random().toString(),
+        text: "Entendi perfeitamente. Obrigado por compartilhar isso comigo. ❤️\n\nVocê gostaria de conversar com um de nossos especialistas agora para ter um apoio mais direcionado?",
+        fromMe: false,
+      };
+
+      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      setEtapa(3);
+    }
+    else if (etapa === 3) {
+      const respostaUsuario = texto.toLowerCase();
+      let textoRobo = "";
+
+      if (respostaUsuario.includes("sim") || respostaUsuario.includes("quero") || respostaUsuario.includes("vms")) {
+        textoRobo = "Perfeito! Estou transferindo você para um de nossos especialistas humanos agora mesmo. Por favor, aguarde um momento. 👩‍⚕️👨‍⚕️";
+      }
+      else {
+        textoRobo = "Entendido! Se precisar de qualquer coisa no futuro, estarei aqui. Cuide-se bem! E lembre-se: você não está sozinho(a) ❤️";
+        }
+
+      const respostaRobo = {
+        id: Math.random().toString(),
+        text: textoRobo,
+        fromMe: false,
+      };
+
+      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      setEtapa(4)
+    }
   };
+
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={90}
+      keyboardVerticalOffset={1}
     >
       {/* Cabeçalho */}
       <View style={styles.header}>
