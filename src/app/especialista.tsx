@@ -1,18 +1,20 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Base de dados completa compartilhada no arquivo
 const AGENDA_COMPLETA = [
   {
     id: "1",
@@ -65,7 +67,7 @@ const AGENDA_COMPLETA = [
     tipo: "Retorno",
     status: "Confirmado",
     idade: "26 anos",
-    queixa: "Evolução clínica positiva, regulação emotional.",
+    queixa: "Evolução clínica positiva, regulação emocional.",
     historicoClinico:
       "Paciente demonstra alto grau de autoconhecimento. Alta clínica em discussão.",
   },
@@ -280,25 +282,33 @@ const HISTORICO_FINANCEIRO = [
 export default function DashboardEspecialista() {
   const router = useRouter();
 
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      try {
+        const NavigationBar = require("expo-navigation-bar");
+        NavigationBar.setButtonStyleAsync("light");
+      } catch (e) {
+        console.log("Erro ao carregar os modulos de navegacao");
+      }
+    }
+  }, []);
+
   const [telaAtiva, setTelaAtiva] = useState<
     "home" | "prontuarios" | "horarios" | "financas"
   >("home");
-
   const [expandido, setExpandido] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [pacienteSelecionado, setPacienteSelecionado] = useState<any>(null);
-
+  const [modalMetricaVisivel, setModalMetricaVisivel] = useState(false);
   const [pesquisaProntuario, setPesquisaProntuario] = useState("");
   const [verHistoricoProntuario, setVerHistoricoProntuario] =
     useState<any>(null);
-
   const [diaSelecionado, setDiaSelecionado] = useState<
     "Hoje" | "Amanhã" | "Seg" | "Ter" | "Qua"
   >("Hoje");
   const [gradeHorarios, setGradeHorarios] = useState<any>(AGENDAS_POR_DIA);
 
   const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 5);
-
   const prontuariosFiltrados = AGENDA_COMPLETA.filter((p) =>
     p.paciente.toLowerCase().includes(pesquisaProntuario.toLowerCase()),
   );
@@ -326,511 +336,631 @@ export default function DashboardEspecialista() {
   const horariosExibidos = gradeHorarios[diaSelecionado] || [];
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "right", "left"]}>
-      {/* CABEÇALHO CLÍNICO DINÂMICO */}
-      <View style={styles.header}>
-        {telaAtiva === "home" ? (
-          <View>
-            <Text style={styles.welcomeText}>Olá, Dr(a).</Text>
-            <Text style={styles.doctorName}>Painel Clínico</Text>
-          </View>
-        ) : (
+    <View style={styles.masterContainer}>
+      <StatusBar style="light" backgroundColor="#000000" />
+
+      <SafeAreaView
+        style={styles.container}
+        edges={["top", "right", "left", "bottom"]}
+      >
+        <View style={styles.header}>
+          {telaAtiva === "home" ? (
+            <View>
+              <Text style={styles.welcomeText}>Olá, Dr(a).</Text>
+              <Text style={styles.doctorName}>Painel Clínico</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.backHeaderButton}
+              onPress={() => setTelaAtiva("home")}
+            >
+              <Feather name="arrow-left" size={24} color="#FFFFFF" />
+              <Text style={styles.doctorNameHeader}>
+                {telaAtiva === "prontuarios" && "Prontuários"}
+                {telaAtiva === "horarios" && "Meus Horários"}
+                {telaAtiva === "financas" && "Finanças Clínicas"}
+              </Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
-            style={styles.backHeaderButton}
-            onPress={() => setTelaAtiva("home")}
+            style={styles.logoutButton}
+            onPress={() => router.replace("/")}
           >
-            <Feather name="arrow-left" size={24} color="#FFFFFF" />
-            <Text style={styles.doctorNameHeader}>
-              {telaAtiva === "prontuarios" && "Prontuários"}
-              {telaAtiva === "horarios" && "Meus Horários"}
-              {telaAtiva === "financas" && "Finanças Clínicas"}
-            </Text>
+            <Feather name="log-out" size={22} color="#FFFFFF" />
           </TouchableOpacity>
-        )}
+        </View>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => router.replace("/")}
-        >
-          <Feather name="log-out" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
-
-      {/* CORPO PRINCIPAL */}
-      <View style={styles.content}>
-        {/* --- TELA 1: HOME --- */}
-        {telaAtiva === "home" && (
-          <>
-            <View style={styles.metricsContainer}>
-              <View style={styles.metricCard}>
-                <Feather name="calendar" size={20} color="#00BFA5" />
-                <Text style={styles.metricValue}>{AGENDA_COMPLETA.length}</Text>
-                <Text style={styles.metricLabel}>Sessões Hoje</Text>
-              </View>
-              <View style={styles.metricCard}>
-                <Feather name="users" size={20} color="#00238e" />
-                <Text style={styles.metricValue}>32</Text>
-                <Text style={styles.metricLabel}>Pacientes</Text>
-              </View>
-              <View style={styles.metricCard}>
-                <Feather name="trending-up" size={20} color="#FF9100" />
-                <Text style={styles.metricValue}>96%</Text>
-                <Text style={styles.metricLabel}>Presença</Text>
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-            <View style={styles.actionsGrid}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => setTelaAtiva("prontuarios")}
-              >
-                <View
-                  style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}
+        <View style={styles.content}>
+          {telaAtiva === "home" && (
+            <>
+              <View style={styles.metricsContainer}>
+                <TouchableOpacity
+                  style={styles.metricCard}
+                  onPress={() => setModalMetricaVisivel(true)}
+                  activeOpacity={0.7}
                 >
-                  <Feather name="file-text" size={20} color="#00BFA5" />
-                </View>
-                <Text style={styles.actionText}>Prontuários</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => setTelaAtiva("horarios")}
-              >
-                <View
-                  style={[styles.iconCircle, { backgroundColor: "#E8EAF6" }]}
-                >
-                  <Feather name="clock" size={20} color="#00238e" />
-                </View>
-                <Text style={styles.actionText}>Meus Horários</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => setTelaAtiva("financas")}
-              >
-                <View
-                  style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}
-                >
-                  <Feather name="dollar-sign" size={20} color="#FF9100" />
-                </View>
-                <Text style={styles.actionText}>Finanças</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.agendaWrapper}>
-              <View style={styles.agendaHeader}>
-                <Text style={styles.agendaSectionTitle}>Agenda de Hoje</Text>
-                <View style={styles.countBadge}>
-                  <Text style={styles.countIndicator}>
-                    {dadosAgenda.length}/{AGENDA_COMPLETA.length}
+                  <Feather name="calendar" size={20} color="#00BFA5" />
+                  <Text style={styles.metricValue}>
+                    {AGENDA_COMPLETA.length}
                   </Text>
+                  <Text style={styles.metricLabel}>Sessões de hoje</Text>
+                </TouchableOpacity>
+                <View style={styles.metricCard}>
+                  <Feather name="users" size={20} color="#00238e" />
+                  <Text style={styles.metricValue}>32</Text>
+                  <Text style={styles.metricLabel}>Pacientes</Text>
+                </View>
+                <View style={styles.metricCard}>
+                  <Feather name="trending-up" size={20} color="#FF9100" />
+                  <Text style={styles.metricValue}>96%</Text>
+                  <Text style={styles.metricLabel}>Presença</Text>
                 </View>
               </View>
 
-              <FlatList
-                data={dadosAgenda}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: 16,
-                  paddingBottom: 48,
-                }}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.appointmentCard}
-                    onPress={() => {
-                      setPacienteSelecionado(item);
-                      setModalVisivel(true);
-                    }}
-                    activeOpacity={0.7}
+              <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+              <View style={styles.actionsGrid}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => setTelaAtiva("prontuarios")}
+                >
+                  <View
+                    style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}
                   >
-                    <View style={styles.cardHeaderRow}>
-                      <View style={styles.appointmentInfo}>
-                        <Feather
-                          name="clock"
-                          size={15}
-                          color="#00BFA5"
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text style={styles.appointmentTime}>
-                          {item.horario}
-                        </Text>
-                        <Text style={styles.appointmentPatient}>
-                          {" "}
-                          - {item.paciente}
-                        </Text>
-                      </View>
-                      <View
-                        style={[
-                          styles.statusTag,
-                          {
-                            backgroundColor:
-                              item.status === "Confirmado"
-                                ? "#E0F2F1"
-                                : "#FFEBEE",
-                          },
-                        ]}
-                      >
-                        <Text
+                    <Feather name="file-text" size={20} color="#00BFA5" />
+                  </View>
+                  <Text style={styles.actionText}>Prontuários</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => setTelaAtiva("horarios")}
+                >
+                  <View
+                    style={[styles.iconCircle, { backgroundColor: "#E8EAF6" }]}
+                  >
+                    <Feather name="clock" size={20} color="#00238e" />
+                  </View>
+                  <Text style={styles.actionText}>Meus Horários</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => setTelaAtiva("financas")}
+                >
+                  <View
+                    style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}
+                  >
+                    <Feather name="dollar-sign" size={20} color="#FF9100" />
+                  </View>
+                  <Text style={styles.actionText}>Finanças</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.agendaWrapper}>
+                <View style={styles.agendaHeader}>
+                  <Text style={styles.agendaSectionTitle}>Agenda de Hoje</Text>
+                  <View style={styles.countBadge}>
+                    <Text style={styles.countIndicator}>
+                      {dadosAgenda.length}/{AGENDA_COMPLETA.length}
+                    </Text>
+                  </View>
+                </View>
+                <FlatList
+                  data={dadosAgenda}
+                  keyExtractor={(item) => item.id}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingHorizontal: 16,
+                    paddingBottom: 48,
+                  }}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.appointmentCard}
+                      onPress={() => {
+                        setPacienteSelecionado(item);
+                        setModalVisivel(true);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.cardHeaderRow}>
+                        <View style={styles.appointmentInfo}>
+                          <Feather
+                            name="clock"
+                            size={15}
+                            color="#00BFA5"
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text style={styles.appointmentTime}>
+                            {item.horario}
+                          </Text>
+                          <Text style={styles.appointmentPatient}>
+                            {" "}
+                            - {item.paciente}
+                          </Text>
+                        </View>
+                        <View
                           style={[
-                            styles.statusText,
+                            styles.statusTag,
                             {
-                              color:
+                              backgroundColor:
                                 item.status === "Confirmado"
-                                  ? "#00BFA5"
-                                  : "#D32F2F",
+                                  ? "#E0F2F1"
+                                  : "#FFEBEE",
                             },
                           ]}
                         >
-                          {item.status}
+                          <Text
+                            style={[
+                              styles.statusText,
+                              {
+                                color:
+                                  item.status === "Confirmado"
+                                    ? "#00BFA5"
+                                    : "#D32F2F",
+                              },
+                            ]}
+                          >
+                            {item.status}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={styles.appointmentType}>{item.tipo}</Text>
+                    </TouchableOpacity>
+                  )}
+                  ListFooterComponent={
+                    !expandido ? (
+                      <TouchableOpacity
+                        style={styles.toggleAgendaButton}
+                        onPress={() => setExpandido(true)}
+                      >
+                        <Text style={styles.toggleAgendaText}>
+                          Mostrar agenda completa
+                        </Text>
+                        <Feather
+                          name="chevron-down"
+                          size={16}
+                          color="#00238e"
+                        />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.toggleAgendaButton}
+                        onPress={() => setExpandido(false)}
+                      >
+                        <Text
+                          style={[
+                            styles.toggleAgendaText,
+                            { color: "#D32F2F" },
+                          ]}
+                        >
+                          Recolher agenda
+                        </Text>
+                        <Feather name="chevron-up" size={16} color="#D32F2F" />
+                      </TouchableOpacity>
+                    )
+                  }
+                />
+              </View>
+            </>
+          )}
+
+          {telaAtiva === "prontuarios" && (
+            <View style={{ flex: 1 }}>
+              <View style={styles.searchContainer}>
+                <Feather
+                  name="search"
+                  size={18}
+                  color="#94A3B8"
+                  style={{ marginRight: 8 }}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Buscar paciente pelo nome..."
+                  placeholderTextColor="#94A3B8"
+                  value={pesquisaProntuario}
+                  onChangeText={setPesquisaProntuario}
+                />
+              </View>
+              <FlatList
+                data={prontuariosFiltrados}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 40 }}
+                renderItem={({ item }) => (
+                  <View style={styles.prontuarioCard}>
+                    <View style={styles.prontuarioMainInfo}>
+                      <Text style={styles.prontuarioPatientName}>
+                        {item.paciente}
+                      </Text>
+                      <Text style={styles.prontuarioPatientAge}>
+                        Idade: {item.idade}
+                      </Text>
+                    </View>
+                    {verHistoricoProntuario === item.id ? (
+                      <View style={styles.historicoExpandidoBox}>
+                        <Text style={styles.historicoTitle}>
+                          Evolução Clínica Recente:
+                        </Text>
+                        <Text style={styles.historicoText}>
+                          {item.historicoClinico}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.fecharProntuarioBtn}
+                          onPress={() => setVerHistoricoProntuario(null)}
+                        >
+                          <Text style={styles.fecharProntuarioBtnText}>
+                            Fechar Prontuário
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.abrirProntuarioBtn}
+                        onPress={() => setVerHistoricoProntuario(item.id)}
+                      >
+                        <Feather
+                          name="folder"
+                          size={16}
+                          color="#00238e"
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text style={styles.abrirProntuarioBtnText}>
+                          Acessar Prontuário
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
+          {telaAtiva === "horarios" && (
+            <View style={{ flex: 1 }}>
+              <View style={styles.daysContainer}>
+                {(["Hoje", "Amanhã", "Seg", "Ter", "Qua"] as const).map(
+                  (dia) => (
+                    <TouchableOpacity
+                      key={dia}
+                      style={[
+                        styles.dayButton,
+                        diaSelecionado === dia && styles.dayButtonActive,
+                      ]}
+                      onPress={() => setDiaSelecionado(dia)}
+                    >
+                      <Text
+                        style={[
+                          styles.dayButtonText,
+                          diaSelecionado === dia && styles.dayButtonTextActive,
+                        ]}
+                      >
+                        {dia}
+                      </Text>
+                    </TouchableOpacity>
+                  ),
+                )}
+              </View>
+              <Text style={styles.helperText}>
+                Toque nos horários vagos para bloquear/liberar atendimentos.
+              </Text>
+              <FlatList
+                data={horariosExibidos}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 30 }}
+                renderItem={({ item }) => (
+                  <View style={styles.rowHorario}>
+                    <Text style={styles.horaLabel}>{item.hora}</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.statusBoxHorario,
+                        item.status === "Ocupado" && styles.boxOcupado,
+                        item.status === "Disponível" && styles.boxDisponivel,
+                        item.status === "Bloqueado" && styles.boxBloqueado,
+                      ]}
+                      onPress={() => handleToggleHorario(item.id)}
+                      disabled={item.status === "Ocupado"}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.statusBoxFlex}>
+                        <Text
+                          style={[
+                            styles.statusBoxText,
+                            item.status === "Ocupado" && styles.txtOcupado,
+                            item.status === "Disponível" &&
+                              styles.txtDisponivel,
+                            item.status === "Bloqueado" && styles.txtBloqueado,
+                          ]}
+                        >
+                          {item.status === "Ocupado"
+                            ? `Sessão: ${item.paciente}`
+                            : item.status}
+                        </Text>
+                        {item.status !== "Ocupado" && (
+                          <Feather
+                            name={
+                              item.status === "Disponível" ? "unlock" : "lock"
+                            }
+                            size={14}
+                            color={
+                              item.status === "Disponível"
+                                ? "#00BFA5"
+                                : "#D32F2F"
+                            }
+                          />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
+          {telaAtiva === "financas" && (
+            <View style={{ flex: 1 }}>
+              <View style={styles.financesSummaryContainer}>
+                <View style={[styles.financeCard, { borderColor: "#00BFA5" }]}>
+                  <Text style={styles.financeCardLabel}>Faturamento Maio</Text>
+                  <Text style={[styles.financeCardValue, { color: "#00BFA5" }]}>
+                    R$ 4.850,00
+                  </Text>
+                </View>
+                <View style={[styles.financeCard, { borderColor: "#FF9100" }]}>
+                  <Text style={styles.financeCardLabel}>
+                    A Receber (Pendentes)
+                  </Text>
+                  <Text style={[styles.financeCardValue, { color: "#FF9100" }]}>
+                    R$ 360,00
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.chartSimulationBox}>
+                <View style={styles.chartHeaderRow}>
+                  <Text style={styles.chartTitle}>
+                    Meta Mensal de Atendimentos
+                  </Text>
+                  <Text style={styles.chartPercentText}>85% Concluído</Text>
+                </View>
+                <View style={styles.progressBarBackground}>
+                  <View style={styles.progressBarFill} />
+                </View>
+              </View>
+              <Text style={styles.sectionTitle}>Últimos Recebimentos</Text>
+              <FlatList
+                data={HISTORICO_FINANCEIRO}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 24 }}
+                renderItem={({ item }) => (
+                  <View style={styles.transactionCard}>
+                    <View style={styles.transactionLeft}>
+                      <View style={styles.iconFinanceCircle}>
+                        <Feather
+                          name="arrow-down-left"
+                          size={16}
+                          color="#00BFA5"
+                        />
+                      </View>
+                      <View>
+                        <Text style={styles.transactionName}>
+                          {item.paciente}
+                        </Text>
+                        <Text style={styles.transactionMeta}>
+                          {item.data} • {item.tipo}
                         </Text>
                       </View>
                     </View>
-                    <Text style={styles.appointmentType}>{item.tipo}</Text>
-                  </TouchableOpacity>
-                )}
-                ListFooterComponent={
-                  !expandido ? (
-                    <TouchableOpacity
-                      style={styles.toggleAgendaButton}
-                      onPress={() => setExpandido(true)}
-                    >
-                      <Text style={styles.toggleAgendaText}>
-                        Mostrar agenda completa
+                    <View style={styles.transactionRight}>
+                      <Text style={styles.transactionValue}>{item.valor}</Text>
+                      <Text style={styles.transactionStatusText}>
+                        {item.status}
                       </Text>
-                      <Feather name="chevron-down" size={16} color="#00238e" />
-                    </TouchableOpacity>
-                  ) : (
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+          )}
+        </View>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalMetricaVisivel}
+          onRequestClose={() => setModalMetricaVisivel(false)}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => setModalMetricaVisivel(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>
+                      Status dos Atendimentos
+                    </Text>
                     <TouchableOpacity
-                      style={styles.toggleAgendaButton}
-                      onPress={() => setExpandido(false)}
+                      onPress={() => setModalMetricaVisivel(false)}
+                    >
+                      <Feather name="x" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.modalBody}>
+                    <Text style={styles.modalPatientName}>Resumo de Hoje</Text>
+                    <View style={styles.statusReportContainer}>
+                      <View style={styles.statusReportRow}>
+                        <View
+                          style={[
+                            styles.statusDot,
+                            { backgroundColor: "#00BFA5" },
+                          ]}
+                        />
+                        <Text style={styles.statusReportLabel}>
+                          Sessões Confirmadas:
+                        </Text>
+                        <Text style={styles.statusReportValue}>
+                          7 pacientes
+                        </Text>
+                      </View>
+                      <View style={styles.statusReportRow}>
+                        <View
+                          style={[
+                            styles.statusDot,
+                            { backgroundColor: "#FF9100" },
+                          ]}
+                        />
+                        <Text style={styles.statusReportLabel}>
+                          Sessões Pendentes:
+                        </Text>
+                        <Text style={styles.statusReportValue}>
+                          3 pacientes
+                        </Text>
+                      </View>
+                      <View style={styles.statusReportRow}>
+                        <View
+                          style={[
+                            styles.statusDot,
+                            { backgroundColor: "#E2E8F0" },
+                          ]}
+                        />
+                        <Text style={styles.statusReportLabel}>
+                          Horários Bloqueados:
+                        </Text>
+                        <Text style={styles.statusReportValue}>
+                          2 intervalos
+                        </Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity
+                      style={[
+                        styles.modalActionButtonPrimary,
+                        { backgroundColor: "#00BFA5" },
+                      ]}
+                      onPress={() => setModalMetricaVisivel(false)}
                     >
                       <Text
-                        style={[styles.toggleAgendaText, { color: "#D32F2F" }]}
+                        style={[
+                          styles.modalActionButtonText,
+                          { color: "#00238e" },
+                        ]}
                       >
-                        Recolher agenda
+                        Entendido
                       </Text>
-                      <Feather name="chevron-up" size={16} color="#D32F2F" />
                     </TouchableOpacity>
-                  )
-                }
-              />
-            </View>
-          </>
-        )}
-
-        {/* --- TELA 2: PRONTUÁRIOS --- */}
-        {telaAtiva === "prontuarios" && (
-          <View style={{ flex: 1 }}>
-            <View style={styles.searchContainer}>
-              <Feather
-                name="search"
-                size={18}
-                color="#94A3B8"
-                style={{ marginRight: 8 }}
-              />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Buscar paciente pelo nome..."
-                placeholderTextColor="#94A3B8"
-                value={pesquisaProntuario}
-                onChangeText={setPesquisaProntuario}
-              />
-            </View>
-            <FlatList
-              data={prontuariosFiltrados}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 40 }}
-              renderItem={({ item }) => (
-                <View style={styles.prontuarioCard}>
-                  <View style={styles.prontuarioMainInfo}>
-                    <Text style={styles.prontuarioPatientName}>
-                      {item.paciente}
-                    </Text>
-                    <Text style={styles.prontuarioPatientAge}>
-                      Idade: {item.idade}
-                    </Text>
                   </View>
-                  {verHistoricoProntuario === item.id ? (
-                    <View style={styles.historicoExpandidoBox}>
-                      <Text style={styles.historicoTitle}>
-                        Evolução Clínica Recente:
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisivel}
+          onRequestClose={() => setModalVisivel(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setModalVisivel(false)}>
+            <View style={styles.modalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>
+                      Detalhes do Agendamento
+                    </Text>
+                    <TouchableOpacity onPress={() => setModalVisivel(false)}>
+                      <Feather name="x" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
+                  </View>
+                  {pacienteSelecionado && (
+                    <View style={styles.modalBody}>
+                      <Text style={styles.modalPatientName}>
+                        {pacienteSelecionado.paciente}
                       </Text>
-                      <Text style={styles.historicoText}>
-                        {item.historicoClinico}
+                      <Text style={styles.modalPatientMeta}>
+                        Idade: {pacienteSelecionado.idade} | Horário:{" "}
+                        {pacienteSelecionado.horario}
                       </Text>
+                      <View style={styles.infoBox}>
+                        <Text style={styles.infoBoxTitle}>
+                          Última queixa / Observações:
+                        </Text>
+                        <Text style={styles.infoBoxText}>
+                          {pacienteSelecionado.queixa}
+                        </Text>
+                      </View>
                       <TouchableOpacity
-                        style={styles.fecharProntuarioBtn}
-                        onPress={() => setVerHistoricoProntuario(null)}
+                        style={[
+                          styles.modalActionButtonPrimary,
+                          { backgroundColor: "#00BFA5" },
+                        ]}
+                        onPress={() => {
+                          setModalVisivel(false);
+                          router.push("/chat/chat");
+                        }}
                       >
-                        <Text style={styles.fecharProntuarioBtnText}>
-                          Fechar Prontuário
+                        <Feather
+                          name="message-square"
+                          size={18}
+                          color="#00238e"
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text
+                          style={[
+                            styles.modalActionButtonText,
+                            { color: "#00238e" },
+                          ]}
+                        >
+                          Abrir Chat com Paciente
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.modalActionButtonSecondary,
+                          { borderColor: "#00BFA5" },
+                        ]}
+                        onPress={() => {
+                          setModalVisivel(false);
+                          setTelaAtiva("prontuarios");
+                          setVerHistoricoProntuario(pacienteSelecionado.id);
+                        }}
+                      >
+                        <Feather
+                          name="edit-3"
+                          size={18}
+                          color="#00BFA5"
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text
+                          style={[
+                            styles.modalActionButtonText,
+                            { color: "#00BFA5" },
+                          ]}
+                        >
+                          Ir para o Prontuário
                         </Text>
                       </TouchableOpacity>
                     </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.abrirProntuarioBtn}
-                      onPress={() => setVerHistoricoProntuario(item.id)}
-                    >
-                      <Feather
-                        name="folder"
-                        size={16}
-                        color="#00238e"
-                        style={{ marginRight: 6 }}
-                      />
-                      <Text style={styles.abrirProntuarioBtnText}>
-                        Acessar Prontuário
-                      </Text>
-                    </TouchableOpacity>
                   )}
                 </View>
-              )}
-            />
-          </View>
-        )}
-
-        {/* --- TELA 3: MEUS HORÁRIOS --- */}
-        {telaAtiva === "horarios" && (
-          <View style={{ flex: 1 }}>
-            <View style={styles.daysContainer}>
-              {(["Hoje", "Amanhã", "Seg", "Ter", "Qua"] as const).map((dia) => (
-                <TouchableOpacity
-                  key={dia}
-                  style={[
-                    styles.dayButton,
-                    diaSelecionado === dia && styles.dayButtonActive,
-                  ]}
-                  onPress={() => setDiaSelecionado(dia)}
-                >
-                  <Text
-                    style={[
-                      styles.dayButtonText,
-                      diaSelecionado === dia && styles.dayButtonTextActive,
-                    ]}
-                  >
-                    {dia}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              </TouchableWithoutFeedback>
             </View>
-
-            <Text style={styles.helperText}>
-              Toque nos horários vagos para bloquear/liberar atendimentos.
-            </Text>
-
-            <FlatList
-              data={horariosExibidos}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 30 }}
-              renderItem={({ item }) => (
-                <View style={styles.rowHorario}>
-                  <Text style={styles.horaLabel}>{item.hora}</Text>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.statusBoxHorario,
-                      item.status === "Ocupado" && styles.boxOcupado,
-                      item.status === "Disponível" && styles.boxDisponivel,
-                      item.status === "Bloqueado" && styles.boxBloqueado,
-                    ]}
-                    onPress={() => handleToggleHorario(item.id)}
-                    disabled={item.status === "Ocupado"}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.statusBoxFlex}>
-                      <Text
-                        style={[
-                          styles.statusBoxText,
-                          item.status === "Ocupado" && styles.txtOcupado,
-                          item.status === "Disponível" && styles.txtDisponivel,
-                          item.status === "Bloqueado" && styles.txtBloqueado,
-                        ]}
-                      >
-                        {item.status === "Ocupado"
-                          ? `Sessão: ${item.paciente}`
-                          : item.status}
-                      </Text>
-                      {item.status !== "Ocupado" && (
-                        <Feather
-                          name={
-                            item.status === "Disponível" ? "unlock" : "lock"
-                          }
-                          size={14}
-                          color={
-                            item.status === "Disponível" ? "#00BFA5" : "#D32F2F"
-                          }
-                        />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          </View>
-        )}
-
-        {/* --- TELA 4: FINANÇAS --- */}
-        {telaAtiva === "financas" && (
-          <View style={{ flex: 1 }}>
-            <View style={styles.financesSummaryContainer}>
-              <View style={[styles.financeCard, { borderColor: "#00BFA5" }]}>
-                <Text style={styles.financeCardLabel}>Faturamento Maio</Text>
-                <Text style={[styles.financeCardValue, { color: "#00BFA5" }]}>
-                  R$ 4.850,00
-                </Text>
-              </View>
-
-              <View style={[styles.financeCard, { borderColor: "#FF9100" }]}>
-                <Text style={styles.financeCardLabel}>
-                  A Receber (Pendentes)
-                </Text>
-                <Text style={[styles.financeCardValue, { color: "#FF9100" }]}>
-                  R$ 360,00
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.chartSimulationBox}>
-              <View style={styles.chartHeaderRow}>
-                <Text style={styles.chartTitle}>
-                  Meta Mensal de Atendimentos
-                </Text>
-                <Text style={styles.chartPercentText}>85% Concluído</Text>
-              </View>
-              <View style={styles.progressBarBackground}>
-                <View style={styles.progressBarFill} />
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>Últimos Recebimentos</Text>
-            <FlatList
-              data={HISTORICO_FINANCEIRO}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 24 }}
-              renderItem={({ item }) => (
-                <View style={styles.transactionCard}>
-                  <View style={styles.transactionLeft}>
-                    <View style={styles.iconFinanceCircle}>
-                      <Feather
-                        name="arrow-down-left"
-                        size={16}
-                        color="#00BFA5"
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.transactionName}>
-                        {item.paciente}
-                      </Text>
-                      <Text style={styles.transactionMeta}>
-                        {item.data} • {item.tipo}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.transactionRight}>
-                    <Text style={styles.transactionValue}>{item.valor}</Text>
-                    <Text style={styles.transactionStatusText}>
-                      {item.status}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            />
-          </View>
-        )}
-      </View>
-
-      {/* MODAL DETALHES DO AGENDAMENTO */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisivel}
-        onRequestClose={() => setModalVisivel(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Detalhes do Agendamento</Text>
-              <TouchableOpacity onPress={() => setModalVisivel(false)}>
-                <Feather name="x" size={24} color="#334155" />
-              </TouchableOpacity>
-            </View>
-
-            {pacienteSelecionado && (
-              <View style={styles.modalBody}>
-                <Text style={styles.modalPatientName}>
-                  {pacienteSelecionado.paciente}
-                </Text>
-                <Text style={styles.modalPatientMeta}>
-                  Idade: {pacienteSelecionado.idade} | Horário:{" "}
-                  {pacienteSelecionado.horario}
-                </Text>
-                <View style={styles.infoBox}>
-                  <Text style={styles.infoBoxTitle}>
-                    Última queixa / Observações:
-                  </Text>
-                  <Text style={styles.infoBoxText}>
-                    {pacienteSelecionado.queixa}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.modalActionButtonPrimary}
-                  onPress={() => {
-                    setModalVisivel(false);
-                    router.push("/chat/chat");
-                  }}
-                >
-                  <Feather
-                    name="message-square"
-                    size={18}
-                    color="#FFFFFF"
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text style={styles.modalActionButtonText}>
-                    Abrir Chat com Paciente
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalActionButtonSecondary}
-                  onPress={() => {
-                    setModalVisivel(false);
-                    setTelaAtiva("prontuarios");
-                    setVerHistoricoProntuario(pacienteSelecionado.id);
-                  }}
-                >
-                  <Feather
-                    name="edit-3"
-                    size={18}
-                    color="#00238e"
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text
-                    style={[styles.modalActionButtonText, { color: "#00238e" }]}
-                  >
-                    Ir para o Prontuário
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </Modal>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#00BFA5" },
+  masterContainer: { flex: 1, backgroundColor: "#000000" },
+  container: { flex: 1, backgroundColor: "#000000" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 24,
     paddingVertical: 20,
+    backgroundColor: "#00BFA5",
   },
   welcomeText: { fontSize: 14, color: "#ffffff", opacity: 0.8 },
   doctorName: { fontSize: 24, fontWeight: "900", color: "#ffffff" },
@@ -842,10 +972,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
     paddingHorizontal: 24,
     paddingTop: 24,
+    paddingBottom: 16,
   },
   metricsContainer: {
     flexDirection: "row",
@@ -969,8 +1098,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontStyle: "italic",
   },
-
-  /* ESTILOS DA TELA DE PRONTUÁRIOS */
   backHeaderButton: { flexDirection: "row", alignItems: "center", gap: 12 },
   doctorNameHeader: { fontSize: 22, fontWeight: "900", color: "#ffffff" },
   searchContainer: {
@@ -1042,8 +1169,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
-
-  /* ESTILOS MEUS HORÁRIOS */
   daysContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1093,8 +1218,6 @@ const styles = StyleSheet.create({
   txtOcupado: { color: "#00238e", fontWeight: "700" },
   txtDisponivel: { color: "#00BFA5" },
   txtBloqueado: { color: "#D32F2F" },
-
-  /* ESTILOS DA TELA DE FINANÇAS */
   financesSummaryContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1111,6 +1234,7 @@ const styles = StyleSheet.create({
   financeCardValue: { fontSize: 18, fontWeight: "800", marginTop: 4 },
   chartSimulationBox: {
     backgroundColor: "#F8FAFC",
+    width: "100%",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     borderRadius: 16,
@@ -1173,18 +1297,51 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textTransform: "uppercase",
   },
-
-  /* ESTILOS DO MODAL */
+  statusReportContainer: { marginVertical: 22, gap: 14 },
+  statusReportRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  statusDot: { width: 10, height: 10, borderRadius: 5 },
+  statusReportLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    flex: 1,
+  },
+  statusReportValue: { fontSize: 14, fontWeight: "700", color: "#00BFA5" },
+  infoBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  infoBoxTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#00BFA5",
+    marginBottom: 6,
+  },
+  infoBoxText: { fontSize: 14, color: "#FFFFFF", lineHeight: 20 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "transparent",
     justifyContent: "flex-end",
   },
   modalContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#00238e",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
+    paddingBottom: 32,
     maxHeight: "80%",
   },
   modalHeader: {
@@ -1192,30 +1349,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: "#F1F5F9",
+    borderColor: "rgba(255, 255, 255, 0.15)",
     paddingBottom: 12,
   },
-  modalTitle: { fontSize: 16, fontWeight: "700", color: "#64748B" },
+  modalTitle: { fontSize: 16, fontWeight: "700", color: "#00BFA5" },
   modalBody: { marginTop: 16 },
-  modalPatientName: { fontSize: 22, fontWeight: "900", color: "#1E293B" },
-  modalPatientMeta: { fontSize: 14, color: "#64748B", marginTop: 4 },
-  infoBox: {
-    backgroundColor: "#F8FAFC",
-    padding: 16,
-    borderRadius: 12,
-    marginVertical: 20,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
+  modalPatientName: { fontSize: 22, fontWeight: "900", color: "#FFFFFF" },
+  modalPatientMeta: {
+    fontSize: 14,
+    color: "#E2E8F0",
+    marginTop: 4,
+    opacity: 0.9,
   },
-  infoBoxTitle: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#475569",
-    marginBottom: 6,
-  },
-  infoBoxText: { fontSize: 14, color: "#334155", lineHeight: 20 },
   modalActionButtonPrimary: {
-    backgroundColor: "#00238e",
+    backgroundColor: "#00BFA5",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -1224,14 +1371,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalActionButtonSecondary: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "transparent",
     borderWidth: 2,
-    borderColor: "#00238e",
+    borderColor: "#00BFA5",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     height: 48,
     borderRadius: 12,
   },
-  modalActionButtonText: { color: "#FFFFFF", fontSize: 15, fontWeight: "700" },
+  modalActionButtonText: { fontSize: 15, fontWeight: "700" },
 });
