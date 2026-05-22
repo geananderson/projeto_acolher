@@ -2,13 +2,13 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -110,7 +110,7 @@ const AGENDA_COMPLETA = [
     status: "Confirmado",
     idade: "29 anos",
     queixa: "Dificuldade de comunicação interpessoal.",
-    historicoClinico: "Treino de assertividade iniciado durante a sessão.",
+    historicoClinico: "Treino de assertividade iniciado during a sessão.",
   },
   {
     id: "10",
@@ -125,7 +125,6 @@ const AGENDA_COMPLETA = [
   },
 ];
 
-// Deixamos o próprio TypeScript deduzir a estrutura sem engasgar
 const AGENDAS_POR_DIA = {
   Hoje: [
     { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Gean Anderson" },
@@ -219,24 +218,80 @@ const AGENDAS_POR_DIA = {
   ],
 };
 
+const HISTORICO_FINANCEIRO = [
+  {
+    id: "f1",
+    paciente: "Gean Anderson",
+    data: "Hoje, 08:00",
+    valor: "R$ 150,00",
+    tipo: "Pix",
+    status: "Recebido",
+  },
+  {
+    id: "f2",
+    paciente: "José Matheus",
+    data: "Hoje, 09:00",
+    valor: "R$ 120,00",
+    tipo: "Cartão",
+    status: "Recebido",
+  },
+  {
+    id: "f3",
+    paciente: "Marcos Gabriel",
+    data: "Hoje, 10:00",
+    valor: "R$ 120,00",
+    tipo: "Pix",
+    status: "Recebido",
+  },
+  {
+    id: "f4",
+    paciente: "Tássio Ivanil",
+    data: "Hoje, 13:00",
+    valor: "R$ 120,00",
+    tipo: "Convênio",
+    status: "Recebido",
+  },
+  {
+    id: "f5",
+    paciente: "Vinicius Albuquerque",
+    data: "Ontem",
+    valor: "R$ 120,00",
+    tipo: "Pix",
+    status: "Recebido",
+  },
+  {
+    id: "f6",
+    paciente: "Wesley Oliveira",
+    data: "Ontem",
+    valor: "R$ 120,00",
+    tipo: "Cartão",
+    status: "Recebido",
+  },
+  {
+    id: "f7",
+    paciente: "William Santos",
+    data: "20 Mai",
+    valor: "R$ 120,00",
+    tipo: "Pix",
+    status: "Recebido",
+  },
+];
+
 export default function DashboardEspecialista() {
   const router = useRouter();
 
   const [telaAtiva, setTelaAtiva] = useState<
-    "home" | "prontuarios" | "horarios"
+    "home" | "prontuarios" | "horarios" | "financas"
   >("home");
 
-  // Estados da Agenda (Home)
   const [expandido, setExpandido] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [pacienteSelecionado, setPacienteSelecionado] = useState<any>(null);
 
-  // Estados dos Prontuários
   const [pesquisaProntuario, setPesquisaProntuario] = useState("");
   const [verHistoricoProntuario, setVerHistoricoProntuario] =
     useState<any>(null);
 
-  // Estados da Tela de Horários
   const [diaSelecionado, setDiaSelecionado] = useState<
     "Hoje" | "Amanhã" | "Seg" | "Ter" | "Qua"
   >("Hoje");
@@ -248,7 +303,6 @@ export default function DashboardEspecialista() {
     p.paciente.toLowerCase().includes(pesquisaProntuario.toLowerCase()),
   );
 
-  // Modifica apenas o horário do dia ativo usando o estado mapeado como any
   const handleToggleHorario = (id: string) => {
     setGradeHorarios((prev: any) => ({
       ...prev,
@@ -287,7 +341,9 @@ export default function DashboardEspecialista() {
           >
             <Feather name="arrow-left" size={24} color="#FFFFFF" />
             <Text style={styles.doctorNameHeader}>
-              {telaAtiva === "prontuarios" ? "Prontuários" : "Meus Horários"}
+              {telaAtiva === "prontuarios" && "Prontuários"}
+              {telaAtiva === "horarios" && "Meus Horários"}
+              {telaAtiva === "financas" && "Finanças Clínicas"}
             </Text>
           </TouchableOpacity>
         )}
@@ -349,7 +405,10 @@ export default function DashboardEspecialista() {
                 <Text style={styles.actionText}>Meus Horários</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => setTelaAtiva("financas")}
+              >
                 <View
                   style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}
                 >
@@ -536,7 +595,6 @@ export default function DashboardEspecialista() {
         {/* --- TELA 3: MEUS HORÁRIOS --- */}
         {telaAtiva === "horarios" && (
           <View style={{ flex: 1 }}>
-            {/* SELETOR DE DIAS */}
             <View style={styles.daysContainer}>
               {(["Hoje", "Amanhã", "Seg", "Ter", "Qua"] as const).map((dia) => (
                 <TouchableOpacity
@@ -609,6 +667,76 @@ export default function DashboardEspecialista() {
                       )}
                     </View>
                   </TouchableOpacity>
+                </View>
+              )}
+            />
+          </View>
+        )}
+
+        {/* --- TELA 4: FINANÇAS --- */}
+        {telaAtiva === "financas" && (
+          <View style={{ flex: 1 }}>
+            <View style={styles.financesSummaryContainer}>
+              <View style={[styles.financeCard, { borderColor: "#00BFA5" }]}>
+                <Text style={styles.financeCardLabel}>Faturamento Maio</Text>
+                <Text style={[styles.financeCardValue, { color: "#00BFA5" }]}>
+                  R$ 4.850,00
+                </Text>
+              </View>
+
+              <View style={[styles.financeCard, { borderColor: "#FF9100" }]}>
+                <Text style={styles.financeCardLabel}>
+                  A Receber (Pendentes)
+                </Text>
+                <Text style={[styles.financeCardValue, { color: "#FF9100" }]}>
+                  R$ 360,00
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.chartSimulationBox}>
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitle}>
+                  Meta Mensal de Atendimentos
+                </Text>
+                <Text style={styles.chartPercentText}>85% Concluído</Text>
+              </View>
+              <View style={styles.progressBarBackground}>
+                <View style={styles.progressBarFill} />
+              </View>
+            </View>
+
+            <Text style={styles.sectionTitle}>Últimos Recebimentos</Text>
+            <FlatList
+              data={HISTORICO_FINANCEIRO}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 24 }}
+              renderItem={({ item }) => (
+                <View style={styles.transactionCard}>
+                  <View style={styles.transactionLeft}>
+                    <View style={styles.iconFinanceCircle}>
+                      <Feather
+                        name="arrow-down-left"
+                        size={16}
+                        color="#00BFA5"
+                      />
+                    </View>
+                    <View>
+                      <Text style={styles.transactionName}>
+                        {item.paciente}
+                      </Text>
+                      <Text style={styles.transactionMeta}>
+                        {item.data} • {item.tipo}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.transactionRight}>
+                    <Text style={styles.transactionValue}>{item.valor}</Text>
+                    <Text style={styles.transactionStatusText}>
+                      {item.status}
+                    </Text>
+                  </View>
                 </View>
               )}
             />
@@ -965,6 +1093,86 @@ const styles = StyleSheet.create({
   txtOcupado: { color: "#00238e", fontWeight: "700" },
   txtDisponivel: { color: "#00BFA5" },
   txtBloqueado: { color: "#D32F2F" },
+
+  /* ESTILOS DA TELA DE FINANÇAS */
+  financesSummaryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  financeCard: {
+    backgroundColor: "#F8FAFC",
+    width: "48%",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  financeCardLabel: { fontSize: 12, fontWeight: "600", color: "#64748B" },
+  financeCardValue: { fontSize: 18, fontWeight: "800", marginTop: 4 },
+  chartSimulationBox: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+  },
+  chartHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  chartTitle: { fontSize: 13, fontWeight: "700", color: "#334155" },
+  chartPercentText: { fontSize: 13, fontWeight: "700", color: "#00238e" },
+  progressBarBackground: {
+    height: 10,
+    backgroundColor: "#E2E8F0",
+    borderRadius: 5,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    width: "85%",
+    backgroundColor: "#00238e",
+    borderRadius: 5,
+  },
+  transactionCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  transactionLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  iconFinanceCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "#E0F2F1",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  transactionName: { fontSize: 14, fontWeight: "700", color: "#1E293B" },
+  transactionMeta: { fontSize: 12, color: "#64748B", marginTop: 2 },
+  transactionRight: { alignItems: "flex-end" },
+  transactionValue: { fontSize: 14, fontWeight: "700", color: "#1E293B" },
+  transactionStatusText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#00BFA5",
+    marginTop: 2,
+    textTransform: "uppercase",
+  },
 
   /* ESTILOS DO MODAL */
   modalOverlay: {
