@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  LayoutAnimation,
   Modal,
   Platform,
   StyleSheet,
@@ -11,9 +12,17 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  UIManager,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const AGENDA_COMPLETA = [
   {
@@ -67,7 +76,7 @@ const AGENDA_COMPLETA = [
     tipo: "Retorno",
     status: "Confirmado",
     idade: "26 anos",
-    queixa: "Evolução clínica positiva, regulação emocional.",
+    queixa: "Evolução clínica positiva, regulação emotional.",
     historicoClinico:
       "Paciente demonstra alto grau de autoconhecimento. Alta clínica em discussão.",
   },
@@ -286,7 +295,7 @@ export default function DashboardEspecialista() {
     if (Platform.OS === "android") {
       try {
         const NavigationBar = require("expo-navigation-bar");
-        NavigationBar.setButtonStyleAsync("light");
+        NavigationBar.setButtonStyleAsync("dark");
       } catch (e) {
         console.log("Erro ao carregar os modulos de navegacao");
       }
@@ -295,7 +304,7 @@ export default function DashboardEspecialista() {
 
   const [telaAtiva, setTelaAtiva] = useState<
     "home" | "prontuarios" | "horarios" | "financas"
-  >("home");
+  >(true ? "home" : "home");
   const [expandido, setExpandido] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [pacienteSelecionado, setPacienteSelecionado] = useState<any>(null);
@@ -308,10 +317,15 @@ export default function DashboardEspecialista() {
   >("Hoje");
   const [gradeHorarios, setGradeHorarios] = useState<any>(AGENDAS_POR_DIA);
 
-  const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 5);
+  const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 3);
   const prontuariosFiltrados = AGENDA_COMPLETA.filter((p) =>
     p.paciente.toLowerCase().includes(pesquisaProntuario.toLowerCase()),
   );
+
+  const toggleExpandir = (valor: boolean) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandido(valor);
+  };
 
   const handleToggleHorario = (id: string) => {
     setGradeHorarios((prev: any) => ({
@@ -448,7 +462,7 @@ export default function DashboardEspecialista() {
                   keyExtractor={(item) => item.id}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={{
-                    paddingHorizontal: 16,
+                    paddingHorizontal: 24,
                     paddingBottom: 48,
                   }}
                   renderItem={({ item }) => (
@@ -509,7 +523,7 @@ export default function DashboardEspecialista() {
                     !expandido ? (
                       <TouchableOpacity
                         style={styles.toggleAgendaButton}
-                        onPress={() => setExpandido(true)}
+                        onPress={() => toggleExpandir(true)}
                       >
                         <Text style={styles.toggleAgendaText}>
                           Mostrar agenda completa
@@ -523,7 +537,7 @@ export default function DashboardEspecialista() {
                     ) : (
                       <TouchableOpacity
                         style={styles.toggleAgendaButton}
-                        onPress={() => setExpandido(false)}
+                        onPress={() => toggleExpandir(false)}
                       >
                         <Text
                           style={[
@@ -840,7 +854,7 @@ export default function DashboardEspecialista() {
                       <Text
                         style={[
                           styles.modalActionButtonText,
-                          { color: "#00238e" },
+                          { color: "#ffffff" },
                         ]}
                       >
                         Entendido
@@ -901,13 +915,13 @@ export default function DashboardEspecialista() {
                         <Feather
                           name="message-square"
                           size={18}
-                          color="#00238e"
+                          color="#ffffff"
                           style={{ marginRight: 8 }}
                         />
                         <Text
                           style={[
                             styles.modalActionButtonText,
-                            { color: "#00238e" },
+                            { color: "#ffffff" },
                           ]}
                         >
                           Abrir Chat com Paciente
@@ -916,7 +930,10 @@ export default function DashboardEspecialista() {
                       <TouchableOpacity
                         style={[
                           styles.modalActionButtonSecondary,
-                          { borderColor: "#00BFA5" },
+                          {
+                            backgroundColor: "#ffffff",
+                            borderColor: "#ffffff",
+                          },
                         ]}
                         onPress={() => {
                           setModalVisivel(false);
@@ -952,7 +969,7 @@ export default function DashboardEspecialista() {
 }
 
 const styles = StyleSheet.create({
-  masterContainer: { flex: 1, backgroundColor: "#000000" },
+  masterContainer: { flex: 1, backgroundColor: "#F1F5F9" },
   container: { flex: 1, backgroundColor: "#000000" },
   header: {
     flexDirection: "row",
@@ -974,7 +991,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 16,
   },
   metricsContainer: {
     flexDirection: "row",
