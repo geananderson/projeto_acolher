@@ -56,7 +56,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Confirmado",
     queixa: "Ansiedade moderada e oscilações de humor.",
     historicoClinico:
-      "Trabalhando techniques de regulação emocional e identificação de gatilhos.",
+      "Trabalhando técnicas de regulação emotional e identificação de gatilhos.",
   },
   {
     id: "4",
@@ -78,7 +78,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Pendente",
     queixa: "Medo de falar em público.",
     historicoClinico:
-      "Prática de respiração diafragmática. Planejando exposições graduais.",
+      "Prática de respiração diafragmática. Planejando exposures graduais.",
   },
   {
     id: "6",
@@ -128,7 +128,7 @@ const BASE_COMPLETA_PACIENTES = [
     id: "10",
     paciente: "Gean Anderson",
     idade: "22 anos",
-    horario: "18:00",
+    horario: "08:00",
     tipo: "Primeira Consulta",
     status: "Confirmado",
     queixa: "Ansiedade com entregas da faculdade.",
@@ -139,7 +139,7 @@ const BASE_COMPLETA_PACIENTES = [
     id: "11",
     paciente: "Guilherme Santos",
     idade: "26 anos",
-    horario: "08:00",
+    horario: "09:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
     queixa: "Procrastinação crônica nos estudos.",
@@ -150,7 +150,7 @@ const BASE_COMPLETA_PACIENTES = [
     id: "12",
     paciente: "Gustavo Henrique",
     idade: "23 anos",
-    horario: "09:00",
+    horario: "11:30",
     tipo: "Retorno",
     status: "Confirmado",
     queixa: "Luto por rompimento afetivo recente.",
@@ -161,7 +161,7 @@ const BASE_COMPLETA_PACIENTES = [
     id: "13",
     paciente: "Igor Miranda",
     idade: "35 anos",
-    horario: "10:00",
+    horario: "14:30",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
     queixa: "Inquietação mental e desatenção.",
@@ -254,7 +254,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Confirmado",
     queixa: "Cobranças financeiras gerando angústia.",
     historicoClinico:
-      "Organização de prioridades reais e manejo de pensamentos catastróficos.",
+      "Organização de prioridades reais and manejo de pensamentos catastróficos.",
   },
   {
     id: "22",
@@ -287,7 +287,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Confirmado",
     queixa: "Mudanças repentinas na rotina de sono.",
     historicoClinico:
-      "Investigando fatores estressores noturnos. Ajustando hábitos cotidianos.",
+      "Investigando factors estressores noturnos. Ajustando hábitos cotidianos.",
   },
   {
     id: "25",
@@ -296,7 +296,7 @@ const BASE_COMPLETA_PACIENTES = [
     horario: "13:00",
     tipo: "Primeira Consulta",
     status: "Confirmado",
-    queixa: "Exaustão emocional generalizada.",
+    queixa: "Exaustão emotional generalizada.",
     historicoClinico:
       "Triagem inicial completa. Sinais claros de esgotamento. Planejando intervenção.",
   },
@@ -424,44 +424,32 @@ const AGENDA_COMPLETA = [
 });
 
 const AGENDAS_POR_DIA = {
-  Hoje: [
-    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Gean Anderson" },
-    { id: "h2", hora: "09:00", status: "Ocupado", paciente: "José Matheus" },
-    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Marcos Gabriel" },
-    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Maycon Mizael" },
-    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
-    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Tássio Ivanil" },
-    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Victor Rennan" },
-    { id: "h8", hora: "15:00", status: "Disponível", paciente: "" },
-    { id: "h9", hora: "16:00", status: "Disponível", paciente: "" },
-    {
-      id: "h10",
-      hora: "17:00",
-      status: "Bloqueado",
-      paciente: "Compromisso pessoal",
-    },
-  ],
   Amanhã: [
-    { id: "h1", hora: "08:00", status: "Disponível", paciente: "" },
+    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Gean Anderson" },
     {
       id: "h2",
       hora: "09:00",
       status: "Ocupado",
-      paciente: "Vinicius Albuquerque",
+      paciente: "Guilherme Santos",
     },
-    { id: "h3", hora: "10:00", status: "Disponível", paciente: "" },
-    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Wesley Oliveira" },
+    {
+      id: "h3",
+      hora: "10:00",
+      status: "Ocupado",
+      paciente: "Gustavo Henrique",
+    },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Igor Miranda" },
     {
       id: "h5",
       hora: "12:00",
       status: "Bloqueado",
       paciente: "Almoço Clínico",
     },
-    { id: "h6", hora: "13:00", status: "Disponível", paciente: "" },
-    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "William Santos" },
-    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Yago Bezerra" },
-    { id: "h9", hora: "16:00", status: "Disponível", paciente: "" },
-    { id: "h10", hora: "17:00", status: "Disponível", paciente: "" },
+    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "José Matheus" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Juliana Paiva" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Larissa Manoela" },
+    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "Lucas Almeida" },
+    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Marcos Gabriel" },
   ],
   Seg: [
     {
@@ -470,49 +458,54 @@ const AGENDAS_POR_DIA = {
       status: "Bloqueado",
       paciente: "Reunião de Equipe",
     },
+    { id: "h2", hora: "09:00", status: "Ocupado", paciente: "Maycon Mizael" },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Mariana Souza" },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Mateus Oliveira" },
+    { id: "h5", hora: "12:00", status: "Ocupado", paciente: "Otávio Augusto" },
+    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Pedro Carvalho" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Rafael Ribeiro" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Rodrigo Faro" },
+    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "Tássio Ivanil" },
+    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Thiago Neves" },
+  ],
+  Ter: [
+    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Victor Rennan" },
     {
       id: "h2",
       hora: "09:00",
-      status: "Bloqueado",
-      paciente: "Reunião de Equipe",
-    },
-    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Gean Anderson" },
-    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
-    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
-    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Marcos Gabriel" },
-    { id: "h7", hora: "14:00", status: "Disponível", paciente: "" },
-    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Tássio Ivanil" },
-    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "Wesley Oliveira" },
-    { id: "h10", hora: "17:00", status: "Disponível", paciente: "" },
-  ],
-  Ter: [
-    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "José Matheus" },
-    { id: "h2", hora: "09:00", status: "Disponível", paciente: "" },
-    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Maycon Mizael" },
-    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
-    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
-    { id: "h6", hora: "13:00", status: "Bloqueado", paciente: "Supervisão" },
-    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Victor Rennan" },
-    { id: "h8", hora: "15:00", status: "Disponível", paciente: "" },
-    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "William Santos" },
-    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Yago Bezerra" },
-  ],
-  Qua: [
-    { id: "h1", hora: "08:00", status: "Disponível", paciente: "" },
-    { id: "h2", hora: "09:00", status: "Disponível", paciente: "" },
-    {
-      id: "h3",
-      hora: "10:00",
       status: "Ocupado",
       paciente: "Vinicius Albuquerque",
     },
-    { id: "h4", hora: "11:00", status: "Disponível", paciente: "" },
-    { id: "h5", hora: "12:00", status: "Disponível", paciente: "" },
-    { id: "h6", hora: "13:00", status: "Disponível", paciente: "" },
-    { id: "h7", hora: "14:00", status: "Disponível", paciente: "" },
-    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Gean Anderson" },
-    { id: "h9", hora: "16:00", status: "Bloqueado", paciente: "Particular" },
-    { id: "h10", hora: "17:00", status: "Bloqueado", paciente: "Particular" },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Wesley Oliveira" },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "William Santos" },
+    { id: "h5", hora: "12:00", status: "Ocupado", paciente: "Yago Bezerra" },
+    { id: "h6", hora: "13:00", status: "Bloqueado", paciente: "Supervisão" },
+    { id: "h7", hora: "14:00", status: "Ocupado", paciente: "Adriano Silva" },
+    { id: "h8", hora: "15:00", status: "Ocupado", paciente: "Amanda Costa" },
+    { id: "h9", hora: "16:00", status: "Ocupado", paciente: "Bruno Melo" },
+    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Carlos Eduardo" },
+  ],
+  Qua: [
+    { id: "h1", hora: "08:00", status: "Ocupado", paciente: "Daniela Freitas" },
+    { id: "h2", hora: "09:00", status: "Ocupado", paciente: "Diego Antunes" },
+    { id: "h3", hora: "10:00", status: "Ocupado", paciente: "Eduardo Rocha" },
+    { id: "h4", hora: "11:00", status: "Ocupado", paciente: "Fernanda Lima" },
+    { id: "h5", hora: "12:00", status: "Ocupado", paciente: "Gabriel Jesus" },
+    { id: "h6", hora: "13:00", status: "Ocupado", paciente: "Gean Anderson" },
+    {
+      id: "h7",
+      hora: "14:00",
+      status: "Ocupado",
+      paciente: "Guilherme Santos",
+    },
+    {
+      id: "h8",
+      hora: "15:00",
+      status: "Ocupado",
+      paciente: "Gustavo Henrique",
+    },
+    { id: "h9", hora: "16:00", status: "Disponível", paciente: "" },
+    { id: "h10", hora: "17:00", status: "Ocupado", paciente: "Igor Miranda" },
   ],
 };
 
@@ -590,7 +583,7 @@ export default function DashboardEspecialista() {
   }, []);
 
   const [telaAtiva, setTelaAtiva] = useState<
-    "home" | "pacientes" | "prontuarios" | "horarios" | "financas"
+    "home" | "pacientes" | "presenca" | "prontuarios" | "horarios" | "financas"
   >(true ? "home" : "home");
   const [expandido, setExpandido] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -600,9 +593,12 @@ export default function DashboardEspecialista() {
   const [verHistoricoProntuario, setVerHistoricoProntuario] =
     useState<any>(null);
   const [diaSelecionado, setDiaSelecionado] = useState<
-    "Hoje" | "Amanhã" | "Seg" | "Ter" | "Qua"
-  >("Hoje");
+    "Amanhã" | "Seg" | "Ter" | "Qua"
+  >("Amanhã");
   const [gradeHorarios, setGradeHorarios] = useState<any>(AGENDAS_POR_DIA);
+  const [listaPresenca, setListaPresenca] = useState<any>(
+    BASE_COMPLETA_PACIENTES,
+  );
 
   const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 3);
   const prontuariosFiltrados = BASE_COMPLETA_PACIENTES.filter((p) =>
@@ -612,6 +608,20 @@ export default function DashboardEspecialista() {
   const toggleExpandir = (valor: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandido(valor);
+  };
+
+  const handleTogglePresenca = (id: string) => {
+    setListaPresenca((prev: any) =>
+      prev.map((item: any) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            status: item.status === "Confirmado" ? "Pendente" : "Confirmado",
+          };
+        }
+        return item;
+      }),
+    );
   };
 
   const handleToggleHorario = (id: string) => {
@@ -658,6 +668,7 @@ export default function DashboardEspecialista() {
               <Feather name="arrow-left" size={24} color="#FFFFFF" />
               <Text style={styles.doctorNameHeader}>
                 {telaAtiva === "pacientes" && "Meus Pacientes"}
+                {telaAtiva === "presenca" && "Controle de Presença"}
                 {telaAtiva === "prontuarios" && "Prontuários"}
                 {telaAtiva === "horarios" && "Meus Horários"}
                 {telaAtiva === "financas" && "Finanças Clínicas"}
@@ -698,11 +709,15 @@ export default function DashboardEspecialista() {
                   </Text>
                   <Text style={styles.metricLabel}>Pacientes</Text>
                 </TouchableOpacity>
-                <View style={styles.metricCard}>
+                <TouchableOpacity
+                  style={styles.metricCard}
+                  onPress={() => setTelaAtiva("presenca")}
+                  activeOpacity={0.7}
+                >
                   <Feather name="trending-up" size={20} color="#FF9100" />
                   <Text style={styles.metricValue}>96%</Text>
                   <Text style={styles.metricLabel}>Presença</Text>
-                </View>
+                </TouchableOpacity>
               </View>
 
               <Text style={styles.sectionTitle}>Ações Rápidas</Text>
@@ -873,6 +888,72 @@ export default function DashboardEspecialista() {
             </View>
           )}
 
+          {telaAtiva === "presenca" && (
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={listaPresenca}
+                keyExtractor={(item) => "pr-" + item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 40 }}
+                renderItem={({ item }) => (
+                  <View style={styles.prontuarioCard}>
+                    <View style={styles.prontuarioMainInfo}>
+                      <Text style={styles.prontuarioPatientName}>
+                        {item.paciente}
+                      </Text>
+                      <TouchableOpacity
+                        style={[
+                          styles.statusTag,
+                          {
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 4,
+                            borderWidth: 1,
+                            borderColor:
+                              item.status === "Confirmado"
+                                ? "#00BFA5"
+                                : "#D32F2F",
+                            backgroundColor:
+                              item.status === "Confirmado"
+                                ? "#E0F2F1"
+                                : "#FFEBEE",
+                          },
+                        ]}
+                        onPress={() => handleTogglePresenca(item.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Feather
+                          name={
+                            item.status === "Confirmado"
+                              ? "check-circle"
+                              : "x-circle"
+                          }
+                          size={13}
+                          color={
+                            item.status === "Confirmado" ? "#00BFA5" : "#D32F2F"
+                          }
+                        />
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color:
+                                item.status === "Confirmado"
+                                  ? "#00BFA5"
+                                  : "#D32F2F",
+                            },
+                          ]}
+                        >
+                          {item.status === "Confirmado" ? "Presente" : "Faltou"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
           {telaAtiva === "prontuarios" && (
             <View style={{ flex: 1 }}>
               <View style={styles.searchContainer}>
@@ -947,27 +1028,25 @@ export default function DashboardEspecialista() {
           {telaAtiva === "horarios" && (
             <View style={{ flex: 1 }}>
               <View style={styles.daysContainer}>
-                {(["Hoje", "Amanhã", "Seg", "Ter", "Qua"] as const).map(
-                  (dia) => (
-                    <TouchableOpacity
-                      key={dia}
+                {(["Amanhã", "Seg", "Ter", "Qua"] as const).map((dia) => (
+                  <TouchableOpacity
+                    key={dia}
+                    style={[
+                      styles.dayButton,
+                      diaSelecionado === dia && styles.dayButtonActive,
+                    ]}
+                    onPress={() => setDiaSelecionado(dia)}
+                  >
+                    <Text
                       style={[
-                        styles.dayButton,
-                        diaSelecionado === dia && styles.dayButtonActive,
+                        styles.dayButtonText,
+                        diaSelecionado === dia && styles.dayButtonTextActive,
                       ]}
-                      onPress={() => setDiaSelecionado(dia)}
                     >
-                      <Text
-                        style={[
-                          styles.dayButtonText,
-                          diaSelecionado === dia && styles.dayButtonTextActive,
-                        ]}
-                      >
-                        {dia}
-                      </Text>
-                    </TouchableOpacity>
-                  ),
-                )}
+                      {dia}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
               <Text style={styles.helperText}>
                 Toque nos horários vagos para bloquear/liberar atendimentos.
@@ -989,7 +1068,6 @@ export default function DashboardEspecialista() {
                       ]}
                       onPress={() => handleToggleHorario(item.id)}
                       disabled={item.status === "Ocupado"}
-                      activeOpacity={0.7}
                     >
                       <View style={styles.statusBoxFlex}>
                         <Text
@@ -1232,13 +1310,13 @@ export default function DashboardEspecialista() {
                         <Feather
                           name="message-square"
                           size={18}
-                          color="#00238e"
+                          color="#ffffff"
                           style={{ marginRight: 8 }}
                         />
                         <Text
                           style={[
                             styles.modalActionButtonText,
-                            { color: "#00238e" },
+                            { color: "#ffffff" },
                           ]}
                         >
                           Abrir Chat com Paciente
