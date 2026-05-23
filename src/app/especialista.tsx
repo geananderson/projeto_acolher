@@ -24,117 +24,404 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const AGENDA_COMPLETA = [
+const BASE_COMPLETA_PACIENTES = [
   {
     id: "1",
-    paciente: "Gean Anderson",
+    paciente: "Adriano Silva",
+    idade: "34 anos",
     horario: "08:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Dificuldade de organização no trabalho.",
+    historicoClinico:
+      "Paciente relata cansaço mental. Iniciamos o mapeamento de rotinas produtivas.",
+  },
+  {
+    id: "2",
+    paciente: "Amanda Costa",
+    idade: "27 anos",
+    horario: "09:00",
     tipo: "Primeira Consulta",
     status: "Confirmado",
+    queixa: "Insegurança em relacionamentos interpessoais.",
+    historicoClinico:
+      "Fase de acolhimento inicial. Estabelecendo vínculo terapêutico seguro.",
+  },
+  {
+    id: "3",
+    paciente: "Bruno Melo",
+    idade: "31 anos",
+    horario: "10:00",
+    tipo: "Retorno",
+    status: "Confirmado",
+    queixa: "Ansiedade moderada e oscilações de humor.",
+    historicoClinico:
+      "Trabalhando techniques de regulação emocional e identificação de gatilhos.",
+  },
+  {
+    id: "4",
+    paciente: "Carlos Eduardo",
+    idade: "29 anos",
+    horario: "11:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Cobrança excessiva por performance.",
+    historicoClinico:
+      "Discussão sobre autocompaixão e reestruturação de crenças limitantes.",
+  },
+  {
+    id: "5",
+    paciente: "Daniela Freitas",
+    idade: "25 anos",
+    horario: "13:00",
+    tipo: "Retorno",
+    status: "Pendente",
+    queixa: "Medo de falar em público.",
+    historicoClinico:
+      "Prática de respiração diafragmática. Planejando exposições graduais.",
+  },
+  {
+    id: "6",
+    paciente: "Diego Antunes",
+    idade: "33 anos",
+    horario: "14:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Estresse elevado no ambiente corporativo.",
+    historicoClinico:
+      "Alinhamento de limites profissionais e técnicas de relaxamento progressivo.",
+  },
+  {
+    id: "7",
+    paciente: "Eduardo Rocha",
+    idade: "42 anos",
+    horario: "15:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Conflitos familiares recorrentes.",
+    historicoClinico:
+      "Análise de padrões de comunicação. Treino de assertividade parental.",
+  },
+  {
+    id: "8",
+    paciente: "Fernanda Lima",
+    idade: "28 anos",
+    horario: "16:00",
+    tipo: "Retorno",
+    status: "Confirmado",
+    queixa: "Sintomas depressivos leves.",
+    historicoClinico:
+      "Acompanhamento de ativação comportamental. Apresenta melhora gradual.",
+  },
+  {
+    id: "9",
+    paciente: "Gabriel Jesus",
+    idade: "24 anos",
+    horario: "17:00",
+    tipo: "Primeira Consulta",
+    status: "Pendente",
+    queixa: "Orientação profissional.",
+    historicoClinico:
+      "Entrevista inicial focada em histórico acadêmico e inclinações profissionais.",
+  },
+  {
+    id: "10",
+    paciente: "Gean Anderson",
     idade: "22 anos",
+    horario: "18:00",
+    tipo: "Primeira Consulta",
+    status: "Confirmado",
     queixa: "Ansiedade com entregas da faculdade.",
     historicoClinico:
       "Paciente relata estresse com prazos acadêmicos. Apresenta boa evolução com técnicas de respiração.",
   },
   {
-    id: "2",
-    paciente: "José Matheus",
+    id: "11",
+    paciente: "Guilherme Santos",
+    idade: "26 anos",
+    horario: "08:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Procrastinação crônica nos estudos.",
+    historicoClinico:
+      "Implementação da técnica de blocos de tempo. Avaliação na próxima sessão.",
+  },
+  {
+    id: "12",
+    paciente: "Gustavo Henrique",
+    idade: "23 anos",
     horario: "09:00",
     tipo: "Retorno",
     status: "Confirmado",
-    idade: "24 anos",
-    queixa: "Acompanhamento de foco e TDAH.",
+    queixa: "Luto por rompimento afetivo recente.",
     historicoClinico:
-      "Foco melhorou após adjustments na rotina de estudos. Manter estratégias visuais.",
+      "Espaço de escuta qualificada para elaboração e aceitação do término.",
   },
   {
-    id: "3",
-    paciente: "Marcos Gabriel",
+    id: "13",
+    paciente: "Igor Miranda",
+    idade: "35 anos",
     horario: "10:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
+    queixa: "Inquietação mental e desatenção.",
+    historicoClinico:
+      "Treino de atenção plena adaptado para rotina diária corporativa.",
+  },
+  {
+    id: "14",
+    paciente: "José Matheus",
+    idade: "24 anos",
+    horario: "11:00",
+    tipo: "Retorno",
+    status: "Confirmado",
+    queixa: "Acompanhamento de foco e TDAH.",
+    historicoClinico:
+      "Foco melhorou após ajustes na rotina de estudos. Manter estratégias visuais.",
+  },
+  {
+    id: "15",
+    paciente: "Juliana Paiva",
+    idade: "30 anos",
+    horario: "13:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Ansiedade generalizada em picos.",
+    historicoClinico:
+      "Reconhecimento de sintomas físicos. Uso de técnicas de ancoragem.",
+  },
+  {
+    id: "16",
+    paciente: "Larissa Manoela",
+    idade: "22 anos",
+    horario: "14:00",
+    tipo: "Primeira Consulta",
+    status: "Pendente",
+    queixa: "Adaptação a uma nova cidade.",
+    historicoClinico:
+      "Identificação de redes de apoio locais e regulação de expectativas.",
+  },
+  {
+    id: "17",
+    paciente: "Lucas Almeida",
+    idade: "27 anos",
+    horario: "15:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Insegurança profissional.",
+    historicoClinico:
+      "Mapeamento de competências e conquistas passadas para fortalecimento do ego.",
+  },
+  {
+    id: "18",
+    paciente: "Marcos Gabriel",
     idade: "28 anos",
+    horario: "16:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
     queixa: "Transição de carreira e estresse profissional.",
     historicoClinico:
       "Sessão focada em mapeamento de competências. Ansiedade controlada.",
   },
   {
-    id: "4",
+    id: "19",
     paciente: "Maycon Mizael",
-    horario: "11:00",
+    idade: "21 anos",
+    horario: "17:00",
     tipo: "Sessão de Terapia",
     status: "Pendente",
-    idade: "21 anos",
     queixa: "Insônia crônica.",
     historicoClinico:
       "Primeiras queixas sobre higiene do sono. Avaliar evolução na próxima semana.",
   },
   {
-    id: "5",
-    paciente: "Tássio Ivanil",
-    horario: "13:00",
+    id: "20",
+    paciente: "Mariana Souza",
+    idade: "26 anos",
+    horario: "18:00",
     tipo: "Retorno",
     status: "Confirmado",
+    queixa: "Timidez limitante em dinâmicas de grupo.",
+    historicoClinico:
+      "Exercícios de ensaio comportamental realizados em consultório.",
+  },
+  {
+    id: "21",
+    paciente: "Mateus Oliveira",
+    idade: "29 anos",
+    horario: "08:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Cobranças financeiras gerando angústia.",
+    historicoClinico:
+      "Organização de prioridades reais e manejo de pensamentos catastróficos.",
+  },
+  {
+    id: "22",
+    paciente: "Otávio Augusto",
+    idade: "40 anos",
+    horario: "09:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Sentimento de estagnação existencial.",
+    historicoClinico:
+      "Exploração de novos valores e metas alinhadas ao momento de vida atual.",
+  },
+  {
+    id: "23",
+    paciente: "Pedro Carvalho",
+    idade: "32 anos",
+    horario: "10:00",
+    tipo: "Retorno",
+    status: "Confirmado",
+    queixa: "Dificuldade em delegar tarefas.",
+    historicoClinico:
+      "Análise de controle rígido. Exercício prático de descentralização.",
+  },
+  {
+    id: "24",
+    paciente: "Rafael Ribeiro",
+    idade: "28 anos",
+    horario: "11:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Mudanças repentinas na rotina de sono.",
+    historicoClinico:
+      "Investigando fatores estressores noturnos. Ajustando hábitos cotidianos.",
+  },
+  {
+    id: "25",
+    paciente: "Rodrigo Faro",
+    idade: "45 anos",
+    horario: "13:00",
+    tipo: "Primeira Consulta",
+    status: "Confirmado",
+    queixa: "Exaustão emocional generalizada.",
+    historicoClinico:
+      "Triagem inicial completa. Sinais claros de esgotamento. Planejando intervenção.",
+  },
+  {
+    id: "26",
+    paciente: "Tássio Ivanil",
     idade: "26 anos",
-    queixa: "Evolução clínica positiva, regulação emotional.",
+    horario: "14:00",
+    tipo: "Retorno",
+    status: "Confirmado",
+    queixa: "Evolução clínica positiva, regulação emocional.",
     historicoClinico:
       "Paciente demonstra alto grau de autoconhecimento. Alta clínica em discussão.",
   },
   {
-    id: "6",
-    paciente: "Victor Rennan",
-    horario: "14:00",
-    tipo: "Primeira Consulta",
-    status: "Pendente",
-    idade: "23 anos",
-    queixa: "Busca autoconhecimento.",
-    historicoClinico:
-      "Fase de entrevista inicial realizada. Estabelecendo rapport.",
-  },
-  {
-    id: "7",
-    paciente: "Vinicius Albuquerque",
+    id: "27",
+    paciente: "Thiago Neves",
+    idade: "33 anos",
     horario: "15:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
+    queixa: "Falta de motivação profissional recente.",
+    historicoClinico:
+      "Investigando alinhamento com a cultura da empresa atual. Evolução estável.",
+  },
+  {
+    id: "28",
+    paciente: "Victor Rennan",
+    idade: "23 anos",
+    horario: "16:00",
+    tipo: "Primeira Consulta",
+    status: "Pendente",
+    queixa: "Busca autoconhecimento.",
+    historicoClinico:
+      "Fase de entrevista inicial realizada. Estabelecendo vínculo terapêutico.",
+  },
+  {
+    id: "29",
+    paciente: "Vinicius Albuquerque",
     idade: "30 anos",
-    queixa: "Gestão de tempo e Burnout.",
+    horario: "17:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+    queixa: "Gestão de tempo e esgotamento profissional.",
     historicoClinico:
       "Orientado a pausas programadas no trabalho. Redução de sintomas físicos de estresse.",
   },
   {
-    id: "8",
+    id: "30",
     paciente: "Wesley Oliveira",
-    horario: "16:00",
+    idade: "25 anos",
+    horario: "18:00",
     tipo: "Retorno",
     status: "Confirmado",
-    idade: "25 anos",
     queixa: "Superação de luto recente.",
     historicoClinico:
       "Espaço de escuta acolhedora. Paciente processando sentimentos de forma saudável.",
   },
   {
-    id: "9",
+    id: "31",
     paciente: "William Santos",
-    horario: "17:00",
+    idade: "29 anos",
+    horario: "08:00",
     tipo: "Sessão de Terapia",
     status: "Confirmado",
-    idade: "29 anos",
     queixa: "Dificuldade de comunicação interpessoal.",
-    historicoClinico: "Treino de assertividade iniciado during a sessão.",
+    historicoClinico: "Treino de assertividade iniciado durante a sessão.",
   },
   {
-    id: "10",
+    id: "32",
     paciente: "Yago Bezerra",
-    horario: "18:00",
+    idade: "22 anos",
+    horario: "09:00",
     tipo: "Retorno",
     status: "Pendente",
-    idade: "22 anos",
     queixa: "Ansiedade social.",
     historicoClinico:
       "Evitação de ambientes públicos reportada. Traçando plano de exposição gradual.",
   },
-];
+].sort((a, b) => a.paciente.localeCompare(b.paciente));
+
+const AGENDA_COMPLETA = [
+  {
+    id: "1",
+    horario: "08:00",
+    tipo: "Primeira Consulta",
+    status: "Confirmado",
+  },
+  { id: "2", horario: "09:00", tipo: "Retorno", status: "Confirmado" },
+  {
+    id: "3",
+    horario: "10:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+  },
+  { id: "4", horario: "11:00", tipo: "Sessão de Terapia", status: "Pendente" },
+  { id: "5", horario: "13:00", tipo: "Retorno", status: "Confirmado" },
+  { id: "6", horario: "14:00", tipo: "Primeira Consulta", status: "Pendente" },
+  {
+    id: "7",
+    horario: "15:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+  },
+  { id: "8", horario: "16:00", tipo: "Retorno", status: "Confirmado" },
+  {
+    id: "9",
+    horario: "17:00",
+    tipo: "Sessão de Terapia",
+    status: "Confirmado",
+  },
+  { id: "10", horario: "18:00", tipo: "Retorno", status: "Pendente" },
+].map((item) => {
+  const nomesAleatorios = [...BASE_COMPLETA_PACIENTES].sort(
+    () => Math.random() - 0.5,
+  );
+  const pacienteAleatorio = nomesAleatorios[0];
+  return {
+    ...item,
+    paciente: pacienteAleatorio.paciente,
+    idade: pacienteAleatorio.idade,
+    queixa: pacienteAleatorio.queixa,
+    historicoClinico: pacienteAleatorio.historicoClinico,
+  };
+});
 
 const AGENDAS_POR_DIA = {
   Hoje: [
@@ -303,7 +590,7 @@ export default function DashboardEspecialista() {
   }, []);
 
   const [telaAtiva, setTelaAtiva] = useState<
-    "home" | "prontuarios" | "horarios" | "financas"
+    "home" | "pacientes" | "prontuarios" | "horarios" | "financas"
   >(true ? "home" : "home");
   const [expandido, setExpandido] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -318,7 +605,7 @@ export default function DashboardEspecialista() {
   const [gradeHorarios, setGradeHorarios] = useState<any>(AGENDAS_POR_DIA);
 
   const dadosAgenda = expandido ? AGENDA_COMPLETA : AGENDA_COMPLETA.slice(0, 3);
-  const prontuariosFiltrados = AGENDA_COMPLETA.filter((p) =>
+  const prontuariosFiltrados = BASE_COMPLETA_PACIENTES.filter((p) =>
     p.paciente.toLowerCase().includes(pesquisaProntuario.toLowerCase()),
   );
 
@@ -370,6 +657,7 @@ export default function DashboardEspecialista() {
             >
               <Feather name="arrow-left" size={24} color="#FFFFFF" />
               <Text style={styles.doctorNameHeader}>
+                {telaAtiva === "pacientes" && "Meus Pacientes"}
                 {telaAtiva === "prontuarios" && "Prontuários"}
                 {telaAtiva === "horarios" && "Meus Horários"}
                 {telaAtiva === "financas" && "Finanças Clínicas"}
@@ -399,11 +687,17 @@ export default function DashboardEspecialista() {
                   </Text>
                   <Text style={styles.metricLabel}>Sessões de hoje</Text>
                 </TouchableOpacity>
-                <View style={styles.metricCard}>
+                <TouchableOpacity
+                  style={styles.metricCard}
+                  onPress={() => setTelaAtiva("pacientes")}
+                  activeOpacity={0.7}
+                >
                   <Feather name="users" size={20} color="#00238e" />
-                  <Text style={styles.metricValue}>32</Text>
+                  <Text style={styles.metricValue}>
+                    {BASE_COMPLETA_PACIENTES.length}
+                  </Text>
                   <Text style={styles.metricLabel}>Pacientes</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.metricCard}>
                   <Feather name="trending-up" size={20} color="#FF9100" />
                   <Text style={styles.metricValue}>96%</Text>
@@ -554,6 +848,29 @@ export default function DashboardEspecialista() {
                 />
               </View>
             </>
+          )}
+
+          {telaAtiva === "pacientes" && (
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={BASE_COMPLETA_PACIENTES}
+                keyExtractor={(item) => "p-" + item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 40 }}
+                renderItem={({ item }) => (
+                  <View style={styles.prontuarioCard}>
+                    <View style={styles.prontuarioMainInfo}>
+                      <Text style={styles.prontuarioPatientName}>
+                        {item.paciente}
+                      </Text>
+                      <Text style={styles.prontuarioPatientAge}>
+                        Idade: {item.idade}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
           )}
 
           {telaAtiva === "prontuarios" && (
@@ -915,13 +1232,13 @@ export default function DashboardEspecialista() {
                         <Feather
                           name="message-square"
                           size={18}
-                          color="#ffffff"
+                          color="#00238e"
                           style={{ marginRight: 8 }}
                         />
                         <Text
                           style={[
                             styles.modalActionButtonText,
-                            { color: "#ffffff" },
+                            { color: "#00238e" },
                           ]}
                         >
                           Abrir Chat com Paciente
@@ -1213,7 +1530,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     gap: 14,
   },
-  horaLabel: { fontSize: 15, fontWeight: "700", color: "#334155", width: 50 },
+  horaLabel: { fontSize: 15, fontWeight: "700", color: "#334155" },
   statusBoxHorario: {
     flex: 1,
     height: 44,
