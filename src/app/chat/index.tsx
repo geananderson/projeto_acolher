@@ -9,14 +9,14 @@ export default function ListaDeConversas() {
   const [novoNome, setNovoNome] = useState('');
   const [novoCrp, setNovoCrp] = useState('');
 
-  // 1. Transformamos a lista fixa em um Estado (useState)
+  // Transformamos a lista fixa em um Estado (useState)
   const [conversasAtivas, setConversasAtivas] = useState([
     { 
       id: '1', 
       nome: 'Apoio Imediato', 
       ultimaMsg: 'Como posso ajudar?', 
       foto: require('../../../assets/images/bot.jpg'),
-      crp: null // O bot não tem CRP
+      crp: null  // O bot não tem CRP
     },
     { 
       id: '2', 
@@ -62,9 +62,9 @@ export default function ListaDeConversas() {
     },
   ]);
 
-  // 2. Função que lida com o salvamento do novo psicólogo
+  //Função que lida com o salvamento do novo psicólogo
   const salvarPsicologo = () => {
-    // Validação simples: não deixa salvar sem nome ou sem CRP
+    // não deixa salvar sem nome ou sem CRP
     if (!novoNome.trim() || !novoCrp.trim()) {
       alert('Por favor, preencha o Nome e o CRP.');
       return;
@@ -75,12 +75,11 @@ export default function ListaDeConversas() {
       id: String(conversasAtivas.length + 1), // Gera um ID sequencial dinâmico
       nome: novoNome,
       ultimaMsg: `CRP: ${novoCrp} (Contato salvo)`, 
-      // Como o usuário não escolheu foto, usamos uma imagem padrão de avatar (pode ser a do robô ou outra que tiver)
       foto: require('../../../assets/images/bot.jpg'), 
       crp: novoCrp
     };
 
-    // Atualizamos o estado da lista adicionando o novo profissional no final
+    // adiciona o novo profissional no final da lista
     setConversasAtivas([...conversasAtivas, novoProfissional]);
 
     // Limpamos os campos do formulário e fechamos o modal
@@ -121,7 +120,7 @@ export default function ListaDeConversas() {
         )}
       />
       
-      {/* Modal de Cadastro de Psicólogo */}
+      {/* Cadastro de Psicólogo */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -191,7 +190,6 @@ const styles = StyleSheet.create({
   nome: { fontWeight: 'bold', fontSize: 16, color: '#333' },
   msg: { color: '#666', fontSize: 14, marginTop: 2 },
   
-  // Estilos do Modal adicionados perfeitamente abaixo
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
