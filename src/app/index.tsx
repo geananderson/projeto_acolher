@@ -70,7 +70,7 @@ export default function Login() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      router.replace("/especialista");
+      router.replace("/dashboard");
     }, 3000);
   };
 

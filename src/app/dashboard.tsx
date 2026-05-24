@@ -49,7 +49,7 @@ export default function Dashboard() {
           </View>
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.helpTitle}>Precisa de ajuda?</Text>
-            <Text style={styles.helpSub}>Solicite apoio humanizado agora</Text>
+            <Text style={styles.helpSub}>Solicite apoio imediato agora</Text>
           </View>
           <Feather name="chevron-right" color="#CCC" size={20} />
         </TouchableOpacity>
