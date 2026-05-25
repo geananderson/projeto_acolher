@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -70,7 +70,13 @@ export default function Login() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      router.replace("/dashboard");
+
+      const nomeDoUsuarioVindoDoBanco = "Gabriel";
+
+      router.replace({
+        pathname: "/dashboard",
+        params: { nome: nomeDoUsuarioVindoDoBanco },
+      });
     }, 3000);
   };
 

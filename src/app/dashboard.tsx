@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
   SafeAreaView,
@@ -23,6 +23,9 @@ const COLORS = {
 
 export default function Dashboard() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ nome: string }>();
+  const nomeExibido = params.nome || "Usuário";
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -31,7 +34,7 @@ export default function Dashboard() {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View style={styles.header}>
-          <Text style={styles.greeting}>Olá, Usuário</Text>
+          <Text style={styles.greeting}>Olá, {nomeExibido}</Text>
           <Text style={styles.subGreeting}>
             Como você está se sentindo hoje?
           </Text>
@@ -73,6 +76,42 @@ export default function Dashboard() {
             icon={<Feather name="heart" color="#666" size={28} />}
           />
         </ScrollView>
+
+        <SectionHeader title="Destaques para você" />
+        <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8}>
+          <View style={styles.featuredContent}>
+            <View style={styles.featuredTextContent}>
+              <Text style={styles.featuredTag}>MEDITAÇÃO</Text>
+              <Text style={styles.featuredTitle}>Aliviando o estresse</Text>
+              <Text style={styles.featuredSub}>5 minutos de relaxamento</Text>
+            </View>
+            <View style={styles.featuredIconContainer}>
+              <Feather name="play-circle" color={COLORS.principal} size={40} />
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        <SectionHeader title="Atividades Recomendadas" />
+        <View style={styles.verticalList}>
+          <ActivityItem
+            title="Exercício de Respiração"
+            sub="Controle sua respiração 4-7-8"
+            icon="wind"
+            color="#3498DB"
+          />
+          <ActivityItem
+            title="Diário de Gratidão"
+            sub="Escreva 3 coisas boas de hoje"
+            icon="edit-3"
+            color="#9B59B6"
+          />
+          <ActivityItem
+            title="Música Relaxante"
+            sub="Sons da natureza para focar"
+            icon="music"
+            color="#F1C40F"
+          />
+        </View>
       </ScrollView>
 
       <View style={styles.bottomNav}>
@@ -89,10 +128,12 @@ export default function Dashboard() {
         <NavButton
           icon={<Feather name="heart" color="#BDC3C7" size={24} />}
           label="Apoio"
+          onPress={() => router.push("/apoio" as any)}
         />
         <NavButton
           icon={<Feather name="user" color="#BDC3C7" size={24} />}
           label="Perfil"
+          onPress={() => router.push("/menu" as any)}
         />
       </View>
     </SafeAreaView>
@@ -120,6 +161,21 @@ const GroupCard = ({ title, icon }: any) => (
     <View style={styles.groupIconContainer}>{icon}</View>
     <Text style={styles.groupCardTitle}>{title}</Text>
   </View>
+);
+
+const ActivityItem = ({ title, sub, icon, color }: any) => (
+  <TouchableOpacity style={styles.activityItem} activeOpacity={0.7}>
+    <View
+      style={[styles.activityIconCircle, { backgroundColor: color + "20" }]}
+    >
+      <Feather name={icon} color={color} size={20} />
+    </View>
+    <View style={styles.activityTextContent}>
+      <Text style={styles.activityTitle}>{title}</Text>
+      <Text style={styles.activitySub}>{sub}</Text>
+    </View>
+    <Feather name="chevron-right" color="#EEE" size={18} />
+  </TouchableOpacity>
 );
 
 const NavButton = ({ icon, label, active, onPress }: any) => (
@@ -197,6 +253,51 @@ const styles = StyleSheet.create({
   },
   groupIconContainer: { marginBottom: 10 },
   groupCardTitle: { fontWeight: "bold", fontSize: 14 },
+  featuredCard: {
+    backgroundColor: COLORS.white,
+    marginHorizontal: 25,
+    marginTop: 15,
+    borderRadius: 25,
+    padding: 20,
+    elevation: 2,
+    borderLeftWidth: 5,
+    borderLeftColor: COLORS.principal,
+  },
+  featuredContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  featuredTextContent: { flex: 1 },
+  featuredTag: {
+    color: COLORS.principal,
+    fontSize: 10,
+    fontWeight: "bold",
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  featuredTitle: { fontSize: 16, fontWeight: "bold", color: COLORS.text },
+  featuredSub: { fontSize: 13, color: COLORS.lightText, marginTop: 2 },
+  featuredIconContainer: { marginLeft: 15 },
+  verticalList: { paddingHorizontal: 25, marginTop: 10 },
+  activityItem: {
+    flexDirection: "row",
+    backgroundColor: COLORS.white,
+    padding: 15,
+    borderRadius: 15,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  activityIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  activityTextContent: { flex: 1, marginLeft: 15 },
+  activityTitle: { fontSize: 14, fontWeight: "bold", color: COLORS.text },
+  activitySub: { fontSize: 12, color: COLORS.lightText, marginTop: 2 },
   bottomNav: {
     position: "absolute",
     bottom: 0,
