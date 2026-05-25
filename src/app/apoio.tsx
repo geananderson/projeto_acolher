@@ -97,7 +97,7 @@ export default function Apoio() {
         <NavButton
           icon={<Feather name="user" color="#BDC3C7" size={24} />}
           label="Perfil"
-          onPress={() => router.push("/menu")}
+          onPress={() => router.push("/menu" as any)}
         />
       </View>
     </SafeAreaView>

@@ -1,19 +1,19 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  FlatList,
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const COLORS = {
+  principal: "#00BFA5",
+  white: "#FFFFFF",
+  text: "#333333",
+  lightText: "#999999",
+};
 
 export default function ListaDeConversas() {
   const router = useRouter();
+  const insets = useSafeAreaInsets(); 
   const [modalVisivel, setModalVisivel] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [novoCrp, setNovoCrp] = useState("");
@@ -57,7 +57,7 @@ export default function ListaDeConversas() {
     {
       id: "6",
       nome: "Dra. Deolane",
-      ultimaMsg: "A mãe tá estourada!",
+      ultimaMsg: "Como vai",
       foto: require("../../../assets/images/deolane.jpg"),
       crp: "06/55555",
     },
@@ -106,6 +106,7 @@ export default function ListaDeConversas() {
       <FlatList
         data={conversasAtivas}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 100 }} 
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
@@ -165,6 +166,33 @@ export default function ListaDeConversas() {
           </View>
         </View>
       </Modal>
+
+      <View
+        style={[
+          styles.bottomNav,
+          { height: 70 + insets.bottom, paddingBottom: insets.bottom },
+        ]}
+      >
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/dashboard" as any)}>
+          <Feather name="home" color="#BDC3C7" size={24} />
+          <Text style={styles.navLabel}>Início</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navButton}>
+          <Feather name="users" color={COLORS.principal} size={24} />
+          <Text style={[styles.navLabel, { color: COLORS.principal }]}>Chat</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/apoio" as any)}>
+          <Feather name="heart" color="#BDC3C7" size={24} />
+          <Text style={styles.navLabel}>Apoio</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/menu" as any)}>
+          <Feather name="user" color="#BDC3C7" size={24} />
+          <Text style={styles.navLabel}>Perfil</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -256,4 +284,17 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
+  bottomNav: {
+    position: "absolute",
+    bottom: 0,
+    flexDirection: "row",
+    width: "100%",
+    backgroundColor: COLORS.white,
+    justifyContent: "space-around",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#EEE",
+  },
+  navButton: { alignItems: "center" },
+  navLabel: { fontSize: 10, color: "#BDC3C7", marginTop: 4 },
 });
