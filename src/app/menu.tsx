@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const COLORS = {
   principal: "#00BFA5",
@@ -23,6 +24,14 @@ const COLORS = {
 export default function Menu() {
   const router = useRouter();
   const [isEnabled, setIsEnabled] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const handleLogout = () => {
+    Alert.alert("Sair da conta", "Tem certeza que deseja sair?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Sim", onPress: () => router.replace("/") },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,6 +69,7 @@ export default function Menu() {
           <Feather name="edit-3" size={20} color={COLORS.text} />
           <Text style={styles.optionText}>Editar Informações</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.option}>
           <Feather name="shield" size={20} color={COLORS.text} />
           <Text style={styles.optionText}>Privacidade e Segurança</Text>
@@ -73,14 +83,19 @@ export default function Menu() {
 
         <TouchableOpacity
           style={[styles.option, { marginTop: 20 }]}
-          onPress={() => router.replace("/")}
+          onPress={handleLogout}
         >
           <Feather name="log-out" size={20} color="#FF5252" />
           <Text style={[styles.optionText, { color: "#FF5252" }]}>Sair</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      <View style={styles.bottomNav}>
+      <View
+        style={[
+          styles.bottomNav,
+          { height: 70 + insets.bottom, paddingBottom: insets.bottom },
+        ]}
+      >
         <NavButton
           icon={<Feather name="home" color="#BDC3C7" size={24} />}
           label="Início"
@@ -166,7 +181,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     flexDirection: "row",
     width: "100%",
-    height: 70,
     backgroundColor: COLORS.white,
     justifyContent: "space-around",
     alignItems: "center",
