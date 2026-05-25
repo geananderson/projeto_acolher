@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const COLORS = {
   principal: "#00BFA5",
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const router = useRouter();
   const params = useLocalSearchParams<{ nome: string }>();
   const nomeExibido = params.nome || "Usuário";
+  const insets = useSafeAreaInsets();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,7 +116,12 @@ export default function Dashboard() {
         </View>
       </ScrollView>
 
-      <View style={styles.bottomNav}>
+      <View
+        style={[
+          styles.bottomNav,
+          { height: 70 + insets.bottom, paddingBottom: insets.bottom },
+        ]}
+      >
         <NavButton
           icon={<Feather name="home" color={COLORS.principal} size={24} />}
           label="Início"
@@ -303,7 +310,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     flexDirection: "row",
     width: "100%",
-    height: 70,
     backgroundColor: COLORS.white,
     justifyContent: "space-around",
     alignItems: "center",
