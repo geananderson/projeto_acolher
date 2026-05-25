@@ -35,13 +35,11 @@ export default function Cadastro() {
   );
   const [currentFrase, setCurrentFrase] = useState(0);
 
-  // Seus estados originais
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Estados do Especialista (Tabela Especialidades)
   const [isEspecialista, setIsEspecialista] = useState(false);
   const [crp, setCrp] = useState("");
   const [especialidade, setEspecialidade] = useState("");
@@ -50,7 +48,6 @@ export default function Cadastro() {
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // ADICIONADO: Uma referência para conseguir controlar o ScrollView via código
   const scrollViewRef = useRef<ScrollView>(null);
 
   const progress = useRef(new Animated.Value(0)).current;
@@ -77,7 +74,6 @@ export default function Cadastro() {
     return () => clearInterval(interval);
   }, [etapa]);
 
-  // CORREÇÃO: Força o ScrollView a zerar a posição e ir para o topo (0,0) quando o teclado fecha
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -87,7 +83,6 @@ export default function Cadastro() {
       "keyboardDidHide",
       () => {
         setIsKeyboardVisible(false);
-        // Força o reset da rolagem para o topo, eliminando a folga elástica do Android
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       },
     );
@@ -111,13 +106,11 @@ export default function Cadastro() {
     setTimeout(() => {
       setIsEspecialista(!isEspecialista);
 
-      // Limpa dados da aba Paciente
       setNome("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
 
-      // Limpa dados da aba Especialista
       setCrp("");
       setEspecialidade("");
       setCredenciais("");
@@ -230,7 +223,6 @@ export default function Cadastro() {
         behavior={Platform.select({ ios: "padding", android: "height" })}
       >
         <ScrollView
-          // ALTERADO: Adicionada a propriedade ref para linkar com o controle do topo
           ref={scrollViewRef}
           contentContainerStyle={{ flexGrow: 1 }}
           style={{ backgroundColor: "#00BFA5" }}
@@ -267,7 +259,6 @@ export default function Cadastro() {
 
               <Animated.View style={[{ flex: 1, transform: [{ rotateY }] }]}>
                 {!isEspecialista ? (
-                  /* LADO A: Paciente */
                   <View style={styles.cardInternal}>
                     <Image
                       source={require("@/src/assets/paciente.png")}
@@ -312,7 +303,6 @@ export default function Cadastro() {
                     </View>
                   </View>
                 ) : (
-                  /* LADO B: Especialista */
                   <View
                     style={[
                       styles.cardInternal,

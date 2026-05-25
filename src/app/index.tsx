@@ -4,15 +4,15 @@ import {
   Alert,
   Animated,
   Image,
-  Keyboard, // ADICIONADO: Importado para fechar o teclado e tirar o foco
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable, // ADICIONADO: Importado para capturar o clique fora dos inputs
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -116,7 +116,6 @@ export default function Login() {
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
         >
-          {/* CORREÇÃO: Pressable para fechar teclado e sumir com o cursor piscando ao clicar fora */}
           <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
             <View style={styles.container}>
               <Image

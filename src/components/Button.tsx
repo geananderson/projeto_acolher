@@ -21,13 +21,13 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: 48,
-    backgroundColor: "#3366FF", //Cor do fundo do botão
+    backgroundColor: "#3366FF",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
   },
   label: {
-    color: "#ffffff", //Cor do texto do botão entrar
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: 600,
   },
