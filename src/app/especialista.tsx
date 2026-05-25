@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   LayoutAnimation,
   Modal,
@@ -56,7 +57,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Confirmado",
     queixa: "Ansiedade moderada e oscilações de humor.",
     historicoClinico:
-      "Trabalhando técnicas de regulação emotional e identificação de gatilhos.",
+      "Trabalhando técnicas de regulação emocional e identificação de gatilhos.",
   },
   {
     id: "4",
@@ -78,7 +79,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Pendente",
     queixa: "Medo de falar em público.",
     historicoClinico:
-      "Prática de respiração diafragmática. Planejando exposures graduais.",
+      "Prática de respiração diafragmática. Planejando exposições graduais.",
   },
   {
     id: "6",
@@ -254,7 +255,7 @@ const BASE_COMPLETA_PACIENTES = [
     status: "Confirmado",
     queixa: "Cobranças financeiras gerando angústia.",
     historicoClinico:
-      "Organização de prioridades reais and manejo de pensamentos catastróficos.",
+      "Organização de prioridades reais e manejo de pensamentos catastróficos.",
   },
   {
     id: "22",
@@ -677,7 +678,12 @@ export default function DashboardEspecialista() {
           )}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => router.replace("/")}
+            onPress={() => {
+              Alert.alert("Confirmar saída", "Deseja realmente sair?", [
+                { text: "Cancelar", style: "cancel" },
+                { text: "Sim", onPress: () => router.replace("/") },
+              ]);
+            }}
           >
             <Feather name="log-out" size={22} color="#FFFFFF" />
           </TouchableOpacity>
