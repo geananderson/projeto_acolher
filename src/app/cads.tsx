@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+import { cadastrar } from '../services/auth';
 import {
   Alert,
   Animated,
@@ -123,42 +124,49 @@ export default function Cadastro() {
     outputRange: ["0deg", "180deg"],
   });
 
-  const handleCadastro = () => {
-    if (nome.trim() === "" || email.trim() === "" || password.trim() === "") {
-      Alert.alert(
-        "Aviso",
-        "Preencha os campos de nome, e-mail e senha para continuar.",
-      );
+  const handleCadastro = async () => {
+  if (nome.trim() === "" || email.trim() === "" || password.trim() === "") {
+    Alert.alert("Aviso", "Preencha os campos de nome, e-mail e senha para continuar.");
+    return;
+  }
+
+  if (!isEspecialista) {
+    if (confirmPassword.trim() === "") {
+      Alert.alert("Aviso", "Por favor, confirme a sua senha.");
       return;
     }
-
-    if (!isEspecialista) {
-      if (confirmPassword.trim() === "") {
-        Alert.alert("Aviso", "Por favor, confirme a sua senha.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        Alert.alert("Erro", "As senhas não coincidem.");
-        return;
-      }
+    if (password !== confirmPassword) {
+      Alert.alert("Erro", "As senhas não coincidem.");
+      return;
     }
+  }
 
-    if (isEspecialista) {
-      if (
-        crp.trim() === "" ||
-        especialidade.trim() === "" ||
-        biografia.trim() === ""
-      ) {
-        Alert.alert(
-          "Aviso",
-          "Preencha os dados profissionais obrigatórios (CRP, Especialidade e Biografia).",
-        );
-        return;
-      }
+  if (isEspecialista) {
+    if (crp.trim() === "" || especialidade.trim() === "" || biografia.trim() === "") {
+      Alert.alert("Aviso", "Preencha os dados profissionais obrigatórios.");
+      return;
     }
+  }
 
+  try {
     setEtapa("carregando");
-  };
+    await cadastrar({
+  nomeCompleto: nome,
+  email: email,
+  senha: password,
+  anonimo: "nao",
+  tipo: isEspecialista ? "especialista" : "usuario",
+  });
+  } catch (error: any) {
+    setEtapa("formulario");
+    if (error.response?.status === 409) {
+      Alert.alert("Erro", "Este e-mail já está cadastrado.");
+    } else {
+      Alert.alert("Erro", "Não foi possível cadastrar. Tente novamente.");
+    }
+  }
+};
+
 
   if (etapa === "carregando") {
     return (
