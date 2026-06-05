@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { cadastrar } from '../services/auth';
+import { cadastrar, cadastrarEspecialista } from '../services/auth';
 import {
   Alert,
   Animated,
@@ -149,14 +149,26 @@ export default function Cadastro() {
   }
 
   try {
-    setEtapa("carregando");
-    await cadastrar({
-  nomeCompleto: nome,
-  email: email,
-  senha: password,
-  anonimo: "nao",
-  tipo: isEspecialista ? "especialista" : "usuario",
+  setEtapa("carregando");
+  const usuario = await cadastrar({
+    nomeCompleto: nome,
+    email: email,
+    senha: password,
+    anonimo: "nao",
+    tipo: isEspecialista ? "especialista" : "usuario",
   });
+
+  if (isEspecialista) {
+    await cadastrarEspecialista({
+      usuarioId: usuario.id,
+      nomeCompleto: nome,
+      crm: crp,
+      especialidade: especialidade,
+      credenciais: credenciais,
+      biografia: biografia,
+      disponivel: true,
+    });
+  }
   } catch (error: any) {
     setEtapa("formulario");
     if (error.response?.status === 409) {

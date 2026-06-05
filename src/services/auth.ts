@@ -29,3 +29,16 @@ export async function isLogado() {
   const token = await AsyncStorage.getItem('token');
   return !!token;
 }
+
+export async function cadastrarEspecialista(dados: {
+  usuarioId: number;
+  nomeCompleto: string;
+  credenciais?: string;
+  crm?: string;
+  especialidade?: string;
+  biografia?: string;
+  disponivel: boolean;
+}) {
+  const response = await api.post('/especialistas', dados);
+  return response.data;
+}
