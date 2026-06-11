@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { enviarMensagem } from '../../services/chat';
+import { getIdUsuarioLogado } from '../../services/perfil';
 
 const MENSAGENS_INICIAIS: {
   id: string;
@@ -20,21 +22,27 @@ const MENSAGENS_INICIAIS: {
 
 export default function Chat() {
   const router = useRouter();
+  const { chatId } = useLocalSearchParams();
   const [mensagens, setMensagens] = useState(MENSAGENS_INICIAIS);
   const [texto, setTexto] = useState("");
   const [etapa, setEtapa] = useState(1);
+  const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
   useEffect(() => {
-    const mensagemInicial = {
+    async function carregarUsuario() {
+      const id = await getIdUsuarioLogado();
+      setUsuarioId(id);
+    }
+    carregarUsuario();
+
+    setMensagens([{
       id: "boas_vidas",
       text: "Olá! Seja muito bem-vindo. 😊\nQual é o seu nome?",
       fromMe: false,
-    };
-
-    setMensagens([mensagemInicial]);
+    }]);
   }, []);
 
-  const enviarMensagem = () => {
+  const handleEnviarMensagem = async () => {
     if (texto.trim() === "") return;
 
     const novaMensagem = {
@@ -43,20 +51,31 @@ export default function Chat() {
       fromMe: true,
     };
 
-    setMensagens([...mensagens, novaMensagem]);
+    setMensagens((atual) => [...atual, novaMensagem]);
+    const textoEnviado = texto;
     setTexto("");
+
+    try {
+      if (usuarioId && chatId) {
+        await enviarMensagem({
+          autorId: usuarioId,
+          chatId: Number(chatId),
+          conteudoTexto: textoEnviado,
+          tipoMidia: 'texto',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao salvar mensagem:', error);
+    }
+    
 
     if (etapa === 1) {
       const respostaRobo = {
         id: Math.random().toString(),
-        text:
-          "Prazer em te conhecer, " +
-          texto +
-          "! Como você está se sentindo hoje?",
+        text: "Prazer em te conhecer, " + textoEnviado + "! Como você está se sentindo hoje?",
         fromMe: false,
       };
-
-      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      setMensagens((atual) => [...atual, respostaRobo]);
       setEtapa(2);
     } else if (etapa === 2) {
       const respostaRobo = {
@@ -64,32 +83,23 @@ export default function Chat() {
         text: "Entendi perfeitamente. Obrigado por compartilhar isso comigo. ❤️\n\nVocê gostaria de conversar com um de nossos especialistas agora para ter um apoio mais direcionado?",
         fromMe: false,
       };
-
-      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      setMensagens((atual) => [...atual, respostaRobo]);
       setEtapa(3);
     } else if (etapa === 3) {
-      const respostaUsuario = texto.toLowerCase();
+      const respostaUsuario = textoEnviado.toLowerCase();
       let textoRobo = "";
 
-      if (
-        respostaUsuario.includes("sim") ||
-        respostaUsuario.includes("quero") ||
-        respostaUsuario.includes("vms")
-      ) {
-        textoRobo =
-          "Perfeito! Estou transferindo você para um de nossos especialistas humanos agora mesmo. Por favor, aguarde um momento. 👩‍⚕️👨‍⚕️";
+      if (respostaUsuario.includes("sim") || respostaUsuario.includes("quero") || respostaUsuario.includes("vms")) {
+        textoRobo = "Perfeito! Estou transferindo você para um de nossos especialistas humanos agora mesmo. Por favor, aguarde um momento. 👩‍⚕️👨‍⚕️";
       } else {
-        textoRobo =
-          "Entendido! Se precisar de qualquer coisa no futuro, estarei aqui. Cuide-se bem! E lembre-se: você não está sozinho(a) ❤️";
+        textoRobo = "Entendido! Se precisar de qualquer coisa no futuro, estarei aqui. Cuide-se bem! E lembre-se: você não está sozinho(a) ❤️";
       }
 
-      const respostaRobo = {
+      setMensagens((atual) => [...atual, {
         id: Math.random().toString(),
         text: textoRobo,
         fromMe: false,
-      };
-
-      setMensagens((mensagensAtuais) => [...mensagensAtuais, respostaRobo]);
+      }]);
       setEtapa(4);
     }
   };
@@ -112,18 +122,8 @@ export default function Chat() {
         data={mensagens}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View
-            style={[
-              styles.balao,
-              item.fromMe ? styles.minhaMsg : styles.outraMsg,
-            ]}
-          >
-            <Text
-              style={[
-                styles.textoMsg,
-                item.fromMe ? styles.textoBranco : styles.textoPreto,
-              ]}
-            >
+          <View style={[styles.balao, item.fromMe ? styles.minhaMsg : styles.outraMsg]}>
+            <Text style={[styles.textoMsg, item.fromMe ? styles.textoBranco : styles.textoPreto]}>
               {item.text}
             </Text>
           </View>
@@ -138,7 +138,7 @@ export default function Chat() {
           value={texto}
           onChangeText={setTexto}
         />
-        <TouchableOpacity style={styles.botaoEnviar} onPress={enviarMensagem}>
+        <TouchableOpacity style={styles.botaoEnviar} onPress={handleEnviarMensagem}>
           <Feather name="send" size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
@@ -158,12 +158,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 18, fontWeight: "bold" },
   listaConteudo: { padding: 20 },
-  balao: {
-    padding: 12,
-    borderRadius: 15,
-    marginBottom: 10,
-    maxWidth: "80%",
-  },
+  balao: { padding: 12, borderRadius: 15, marginBottom: 10, maxWidth: "80%" },
   minhaMsg: { alignSelf: "flex-end", backgroundColor: "#00BFA5" },
   outraMsg: { alignSelf: "flex-start", backgroundColor: "#E0E0E0" },
   textoMsg: { fontSize: 16 },

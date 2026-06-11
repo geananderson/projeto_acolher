@@ -1,8 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { FlatList, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { listarEspecialistas, criarChat } from '../../services/chat';
+import { getIdUsuarioLogado } from '../../services/perfil';
 
 const COLORS = {
   principal: "#00BFA5",
@@ -13,83 +15,54 @@ const COLORS = {
 
 export default function ListaDeConversas() {
   const router = useRouter();
-  const insets = useSafeAreaInsets(); 
+  const insets = useSafeAreaInsets();
   const [modalVisivel, setModalVisivel] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [novoCrp, setNovoCrp] = useState("");
+  const [especialistas, setEspecialistas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
-  const [conversasAtivas, setConversasAtivas] = useState([
-    {
-      id: "1",
-      nome: "Apoio Imediato",
-      ultimaMsg: "Como posso ajudar?",
-      foto: require("../../../assets/images/bot.jpg"),
-      crp: null,
-    },
-    {
-      id: "2",
-      nome: "Dr. Carlo Ancelotti",
-      ultimaMsg: "Tudo sob controle por aqui.",
-      foto: require("../../../assets/images/ancelotti.jpg"),
-      crp: "06/11111",
-    },
-    {
-      id: "3",
-      nome: "Dra. Virginia Fonseca",
-      ultimaMsg: "Olha o Direct!",
-      foto: require("../../../assets/images/virginia.jpg"),
-      crp: "06/22222",
-    },
-    {
-      id: "4",
-      nome: "Dr. Jair Bolsonaro",
-      ultimaMsg: "Forte abraço.",
-      foto: require("../../../assets/images/bolsonaro.jpg"),
-      crp: "06/33333",
-    },
-    {
-      id: "5",
-      nome: "Dr. Neymar Júnior",
-      ultimaMsg: "Foco na recuperação.",
-      foto: require("../../../assets/images/neymar.jpg"),
-      crp: "06/44444",
-    },
-    {
-      id: "6",
-      nome: "Dra. Deolane",
-      ultimaMsg: "Como vai",
-      foto: require("../../../assets/images/deolane.jpg"),
-      crp: "06/55555",
-    },
-    {
-      id: "7",
-      nome: "Dr. Luiz Inácio",
-      ultimaMsg: "Companheiro, como vai?",
-      foto: require("../../../assets/images/lula.jpg"),
-      crp: "06/66666",
-    },
-  ]);
+  useEffect(() => {
+    async function carregar() {
+      try {
+        const [lista, id] = await Promise.all([
+          listarEspecialistas(),
+          getIdUsuarioLogado()
+        ]);
+        setEspecialistas(lista);
+        setUsuarioId(id);
+      } catch (error) {
+        console.error('Erro ao carregar especialistas', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    carregar();
+  }, []);
+
+  const handleAbrirChat = async (especialistaId: number) => {
+    try {
+      const chat = await criarChat(usuarioId!, especialistaId);
+      router.push(`/chat/chat?chatId=${chat.id}`);
+    } catch (error) {
+      console.error('Erro ao criar chat', error);
+    }
+  };
 
   const salvarPsicologo = () => {
-    if (!novoNome.trim() || !novoCrp.trim()) {
-      alert("Por favor, preencha o Nome e o CRP.");
-      return;
-    }
-
-    const novoProfissional = {
-      id: String(conversasAtivas.length + 1),
-      nome: novoNome,
-      ultimaMsg: `CRP: ${novoCrp} (Contato salvo)`,
-      foto: require("../../../assets/images/bot.jpg"),
-      crp: novoCrp,
-    };
-
-    setConversasAtivas([...conversasAtivas, novoProfissional]);
-
     setNovoNome("");
     setNovoCrp("");
     setModalVisivel(false);
   };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#00BFA5" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -104,19 +77,26 @@ export default function ListaDeConversas() {
       </View>
 
       <FlatList
-        data={conversasAtivas}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100 }} 
+        data={especialistas}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', marginTop: 40 }}>
+            <Text style={{ color: '#999' }}>Nenhum especialista disponível.</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => router.push("/chat/chat")}
+            onPress={() => handleAbrirChat(item.id)}
           >
-            <Image source={item.foto} style={styles.avatar} />
+            <View style={[styles.avatar, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#E0F2F1' }]}>
+              <Feather name="user" size={24} color="#00BFA5" />
+            </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.nome}>{item.nome}</Text>
+              <Text style={styles.nome}>{item.nomeCompleto}</Text>
               <Text style={styles.msg} numberOfLines={1}>
-                {item.ultimaMsg}
+                {item.especialidade ?? 'Especialista'}
               </Text>
             </View>
             <Feather name="chevron-right" size={20} color="#CCC" />
@@ -133,21 +113,18 @@ export default function ListaDeConversas() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Cadastrar Psicólogo</Text>
-
             <TextInput
               style={styles.input}
               placeholder="Nome do Profissional"
               value={novoNome}
               onChangeText={setNovoNome}
             />
-
             <TextInput
               style={styles.input}
               placeholder="CRP (Ex: 06/12345)"
               value={novoCrp}
               onChangeText={setNovoCrp}
             />
-
             <View style={styles.modalBotoes}>
               <TouchableOpacity
                 style={[styles.botaoModal, styles.botaoCancelar]}
@@ -155,7 +132,6 @@ export default function ListaDeConversas() {
               >
                 <Text style={styles.textoBotao}>Cancelar</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={[styles.botaoModal, styles.botaoSalvar]}
                 onPress={salvarPsicologo}
@@ -167,27 +143,19 @@ export default function ListaDeConversas() {
         </View>
       </Modal>
 
-      <View
-        style={[
-          styles.bottomNav,
-          { height: 70 + insets.bottom, paddingBottom: insets.bottom },
-        ]}
-      >
+      <View style={[styles.bottomNav, { height: 70 + insets.bottom, paddingBottom: insets.bottom }]}>
         <TouchableOpacity style={styles.navButton} onPress={() => router.push("/dashboard" as any)}>
           <Feather name="home" color="#BDC3C7" size={24} />
           <Text style={styles.navLabel}>Início</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity style={styles.navButton}>
           <Feather name="users" color={COLORS.principal} size={24} />
           <Text style={[styles.navLabel, { color: COLORS.principal }]}>Chat</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity style={styles.navButton} onPress={() => router.push("/apoio" as any)}>
           <Feather name="heart" color="#BDC3C7" size={24} />
           <Text style={styles.navLabel}>Apoio</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity style={styles.navButton} onPress={() => router.push("/menu" as any)}>
           <Feather name="user" color="#BDC3C7" size={24} />
           <Text style={styles.navLabel}>Perfil</Text>
@@ -225,7 +193,6 @@ const styles = StyleSheet.create({
   },
   nome: { fontWeight: "bold", fontSize: 16, color: "#333" },
   msg: { color: "#666", fontSize: 14, marginTop: 2 },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -244,12 +211,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 15,
-  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#333", marginBottom: 15 },
   input: {
     width: "100%",
     height: 45,
@@ -274,16 +236,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   },
-  botaoCancelar: {
-    backgroundColor: "#999",
-  },
-  botaoSalvar: {
-    backgroundColor: "#00BFA5",
-  },
-  textoBotao: {
-    color: "#FFF",
-    fontWeight: "bold",
-  },
+  botaoCancelar: { backgroundColor: "#999" },
+  botaoSalvar: { backgroundColor: "#00BFA5" },
+  textoBotao: { color: "#FFF", fontWeight: "bold" },
   bottomNav: {
     position: "absolute",
     bottom: 0,

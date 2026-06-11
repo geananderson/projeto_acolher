@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getNomeUsuario } from '../services/perfil';
+import { logout } from '../services/auth';
 
 const COLORS = {
   principal: "#00BFA5",
@@ -24,9 +26,16 @@ const COLORS = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ nome: string }>();
-  const nomeExibido = params.nome || "Usuário";
   const insets = useSafeAreaInsets();
+  const [nomeUsuario, setNomeUsuario] = useState("Usuário");
+
+  useEffect(() => {
+    async function carregarUsuario() {
+      const nome = await getNomeUsuario();
+      if (nome) setNomeUsuario(nome);
+    }
+    carregarUsuario();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,7 +45,7 @@ export default function Dashboard() {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View style={styles.header}>
-          <Text style={styles.greeting}>Olá, {nomeExibido}</Text>
+          <Text style={styles.greeting}>Olá, {nomeUsuario}</Text>
           <Text style={styles.subGreeting}>
             Como você está se sentindo hoje?
           </Text>
@@ -65,18 +74,9 @@ export default function Dashboard() {
           showsHorizontalScrollIndicator={false}
           style={styles.horizontalList}
         >
-          <GroupCard
-            title="Ansiedade"
-            icon={<Feather name="zap" color="#666" size={28} />}
-          />
-          <GroupCard
-            title="Tristeza"
-            icon={<Feather name="frown" color="#666" size={28} />}
-          />
-          <GroupCard
-            title="Autoestima"
-            icon={<Feather name="heart" color="#666" size={28} />}
-          />
+          <GroupCard title="Ansiedade" icon={<Feather name="zap" color="#666" size={28} />} />
+          <GroupCard title="Tristeza" icon={<Feather name="frown" color="#666" size={28} />} />
+          <GroupCard title="Autoestima" icon={<Feather name="heart" color="#666" size={28} />} />
         </ScrollView>
 
         <SectionHeader title="Destaques para você" />
@@ -95,38 +95,14 @@ export default function Dashboard() {
 
         <SectionHeader title="Atividades Recomendadas" />
         <View style={styles.verticalList}>
-          <ActivityItem
-            title="Exercício de Respiração"
-            sub="Controle sua respiração 4-7-8"
-            icon="wind"
-            color="#3498DB"
-          />
-          <ActivityItem
-            title="Diário de Gratidão"
-            sub="Escreva 3 coisas boas de hoje"
-            icon="edit-3"
-            color="#9B59B6"
-          />
-          <ActivityItem
-            title="Música Relaxante"
-            sub="Sons da natureza para focar"
-            icon="music"
-            color="#F1C40F"
-          />
+          <ActivityItem title="Exercício de Respiração" sub="Controle sua respiração 4-7-8" icon="wind" color="#3498DB" />
+          <ActivityItem title="Diário de Gratidão" sub="Escreva 3 coisas boas de hoje" icon="edit-3" color="#9B59B6" />
+          <ActivityItem title="Música Relaxante" sub="Sons da natureza para focar" icon="music" color="#F1C40F" />
         </View>
       </ScrollView>
 
-      <View
-        style={[
-          styles.bottomNav,
-          { height: 70 + insets.bottom, paddingBottom: insets.bottom },
-        ]}
-      >
-        <NavButton
-          icon={<Feather name="home" color={COLORS.principal} size={24} />}
-          label="Início"
-          active
-        />
+      <View style={[styles.bottomNav, { height: 70 + insets.bottom, paddingBottom: insets.bottom }]}>
+        <NavButton icon={<Feather name="home" color={COLORS.principal} size={24} />} label="Início" active />
         <NavButton
           icon={<Feather name="users" color="#BDC3C7" size={24} />}
           label="Chat"
@@ -172,9 +148,7 @@ const GroupCard = ({ title, icon }: any) => (
 
 const ActivityItem = ({ title, sub, icon, color }: any) => (
   <TouchableOpacity style={styles.activityItem} activeOpacity={0.7}>
-    <View
-      style={[styles.activityIconCircle, { backgroundColor: color + "20" }]}
-    >
+    <View style={[styles.activityIconCircle, { backgroundColor: color + "20" }]}>
       <Feather name={icon} color={color} size={20} />
     </View>
     <View style={styles.activityTextContent}>
@@ -205,11 +179,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 35,
   },
   greeting: { fontSize: 24, fontWeight: "bold", color: COLORS.white },
-  subGreeting: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 14,
-    marginBottom: 20,
-  },
+  subGreeting: { color: "rgba(255,255,255,0.8)", fontSize: 14, marginBottom: 20 },
   moodRow: { flexDirection: "row", justifyContent: "space-between" },
   moodItem: { alignItems: "center" },
   moodCircle: {
@@ -270,19 +240,9 @@ const styles = StyleSheet.create({
     borderLeftWidth: 5,
     borderLeftColor: COLORS.principal,
   },
-  featuredContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
+  featuredContent: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   featuredTextContent: { flex: 1 },
-  featuredTag: {
-    color: COLORS.principal,
-    fontSize: 10,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
+  featuredTag: { color: COLORS.principal, fontSize: 10, fontWeight: "bold", letterSpacing: 1, marginBottom: 4 },
   featuredTitle: { fontSize: 16, fontWeight: "bold", color: COLORS.text },
   featuredSub: { fontSize: 13, color: COLORS.lightText, marginTop: 2 },
   featuredIconContainer: { marginLeft: 15 },
@@ -295,13 +255,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: "center",
   },
-  activityIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  activityIconCircle: { width: 40, height: 40, borderRadius: 12, justifyContent: "center", alignItems: "center" },
   activityTextContent: { flex: 1, marginLeft: 15 },
   activityTitle: { fontSize: 14, fontWeight: "bold", color: COLORS.text },
   activitySub: { fontSize: 12, color: COLORS.lightText, marginTop: 2 },

@@ -129,6 +129,10 @@ export default function Cadastro() {
     Alert.alert("Aviso", "Preencha os campos de nome, e-mail e senha para continuar.");
     return;
   }
+  if (password.length < 8) {
+  Alert.alert("Erro", "A senha deve ter pelo menos 8 caracteres.");
+  return;
+}
 
   if (!isEspecialista) {
     if (confirmPassword.trim() === "") {

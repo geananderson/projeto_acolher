@@ -1,6 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import { logout } from '../services/auth';
+import { getNomeUsuario } from '../services/perfil';
+import { useEffect } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -23,15 +26,28 @@ const COLORS = {
 
 export default function Menu() {
   const router = useRouter();
+  const [nomeUsuario, setNomeUsuario] = useState("Usuário");
+  const [emailUsuario, setEmailUsuario] = useState("");
+
+  useEffect(() => {
+  async function carregar() {
+    const nome = await getNomeUsuario();
+    if (nome) setNomeUsuario(nome);
+  }
+    carregar();
+}, []);
   const [isEnabled, setIsEnabled] = useState(false);
   const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
-    Alert.alert("Sair da conta", "Tem certeza que deseja sair?", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Sim", onPress: () => router.replace("/") },
-    ]);
-  };
+  Alert.alert("Sair da conta", "Tem certeza que deseja sair?", [
+    { text: "Cancelar", style: "cancel" },
+    { text: "Sim", onPress: async () => {
+      await logout();
+      router.replace("/");
+    }},
+  ]);
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,7 +58,7 @@ export default function Menu() {
           <View style={styles.avatar}>
             <Feather name="user" size={40} color={COLORS.principal} />
           </View>
-          <Text style={styles.userName}>Gabriel</Text>
+          <Text style={styles.userName}>{nomeUsuario}</Text>
           <Text style={styles.userEmail}>gabriel@email.com</Text>
         </View>
 

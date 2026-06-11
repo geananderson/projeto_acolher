@@ -1,6 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { getNomeUsuario } from '../services/perfil';
+import { logout } from '../services/auth';
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -583,6 +585,16 @@ export default function DashboardEspecialista() {
     }
   }, []);
 
+  const [nomeEspecialista, setNomeEspecialista] = useState("Dr(a).");
+
+  useEffect(() => {
+    async function carregarEspecialista() {
+      const nome = await getNomeUsuario();
+      if (nome) setNomeEspecialista(nome);
+    }
+    carregarEspecialista();
+  }, []);
+
   const [telaAtiva, setTelaAtiva] = useState<
     "home" | "pacientes" | "presenca" | "prontuarios" | "horarios" | "financas"
   >(true ? "home" : "home");
@@ -658,7 +670,7 @@ export default function DashboardEspecialista() {
         <View style={styles.header}>
           {telaAtiva === "home" ? (
             <View>
-              <Text style={styles.welcomeText}>Olá, Dr(a).</Text>
+              <Text style={styles.welcomeText}>Olá, {nomeEspecialista}</Text>
               <Text style={styles.doctorName}>Painel Clínico</Text>
             </View>
           ) : (
@@ -678,12 +690,15 @@ export default function DashboardEspecialista() {
           )}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => {
-              Alert.alert("Confirmar saída", "Deseja realmente sair?", [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Sim", onPress: () => router.replace("/") },
-              ]);
-            }}
+            onPress={async () => {
+                Alert.alert("Confirmar saída", "Deseja realmente sair?", [
+                          { text: "Cancelar", style: "cancel" },
+                          { text: "Sim", onPress: async () => {
+                          await logout();
+                          router.replace("/");
+            }},
+  ]);
+}}
           >
             <Feather name="log-out" size={22} color="#FFFFFF" />
           </TouchableOpacity>
@@ -1309,8 +1324,8 @@ export default function DashboardEspecialista() {
                           { backgroundColor: "#00BFA5" },
                         ]}
                         onPress={() => {
-                          setModalVisivel(false);
-                          router.push("/chat/chat");
+                        setModalVisivel(false);
+                        router.push(`/chat/chat?chatId=${pacienteSelecionado.chatId}`);
                         }}
                       >
                         <Feather

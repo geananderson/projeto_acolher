@@ -15,6 +15,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { login } from '../services/auth';
+import { getTipoUsuario } from '../services/perfil';
 
 import { Button } from "../components/Button";
 import { Input } from "../components/input";
@@ -38,10 +40,8 @@ export default function Login() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentFrase, setCurrentFrase] = useState(0);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -61,23 +61,32 @@ export default function Login() {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (email.trim() === "" || password.trim() === "") {
       Alert.alert("Aviso", "Os campos de e-mail e senha são obrigatórios.");
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      await login(email, password);
+      const tipo = await getTipoUsuario();
+      setTimeout(() => {
+        setLoading(false);
+        if (tipo === 'especialista') {
+          router.replace("/especialista");
+        } else {
+          router.replace("/dashboard");
+        }
+      }, 3000);
+    } catch (error: any) {
       setLoading(false);
-
-      const nomeDoUsuarioVindoDoBanco = "Gabriel";
-
-      router.replace({
-        pathname: "/dashboard",
-        params: { nome: nomeDoUsuarioVindoDoBanco },
-      });
-    }, 3000);
+      if (error.response?.status === 403) {
+        Alert.alert("Erro", "E-mail ou senha incorretos.");
+      } else {
+        Alert.alert("Erro", "Não foi possível fazer login. Tente novamente.");
+      }
+    }
   };
 
   if (loading) {
@@ -148,7 +157,6 @@ export default function Login() {
                   value={password}
                   onChangeText={setPassword}
                 />
-
                 <Button
                   label="Entrar"
                   onPress={handleLogin}
