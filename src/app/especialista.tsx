@@ -19,7 +19,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { listarChatsPorEspecialista } from '../services/chat';
+import { getIdEspecialistaLogado } from '../services/perfil';
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental

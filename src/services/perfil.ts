@@ -43,3 +43,20 @@ export async function getTipoUsuario() {
     return null;
   }
 }
+
+export async function getIdEspecialistaLogado() {
+  try {
+    const response = await api.get('/especialistas');
+    const token = await AsyncStorage.getItem('token');
+    if (!token) return null;
+    const decoded: any = jwtDecode(token);
+    const email = decoded.sub;
+    const usuario = await api.get('/cadastros');
+    const usuarioLogado = usuario.data.content.find((u: any) => u.email === email);
+    if (!usuarioLogado) return null;
+    const especialista = response.data.content.find((e: any) => e.usuarioId === usuarioLogado.id);
+    return especialista?.id || null;
+  } catch {
+    return null;
+  }
+}
