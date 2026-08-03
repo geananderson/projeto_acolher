@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -11,35 +11,61 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { enviarMensagem } from '../../services/chat';
+import {
+  conectarChat,
+  desconectarChat,
+  enviarMensagem,
+  enviarMensagemWS,
+} from '../../services/chat';
 import { getIdUsuarioLogado } from '../../services/perfil';
-
-const MENSAGENS_INICIAIS: {
-  id: string;
-  text: string;
-  fromMe: boolean;
-}[] = [];
 
 export default function Chat() {
   const router = useRouter();
   const { chatId } = useLocalSearchParams();
-  const [mensagens, setMensagens] = useState(MENSAGENS_INICIAIS);
+  const flatListRef = useRef<FlatList>(null);
+
+  const [mensagens, setMensagens] = useState<{
+    id: string;
+    text: string;
+    fromMe: boolean;
+  }[]>([]);
   const [texto, setTexto] = useState("");
   const [etapa, setEtapa] = useState(1);
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
   useEffect(() => {
-    async function carregarUsuario() {
+    async function inicializar() {
       const id = await getIdUsuarioLogado();
       setUsuarioId(id);
-    }
-    carregarUsuario();
 
-    setMensagens([{
-      id: "boas_vidas",
-      text: "Olá! Seja muito bem-vindo. 😊\nQual é o seu nome?",
-      fromMe: false,
-    }]);
+      // mensagem de boas vindas do robô
+      setMensagens([{
+        id: "boas_vindas",
+        text: "Olá! Seja muito bem-vindo. 😊\nQual é o seu nome?",
+        fromMe: false,
+      }]);
+
+      // conecta no WebSocket se já tiver um chatId real
+      if (chatId) {
+        conectarChat(Number(chatId), (novaMensagem) => {
+          // mensagens chegando do outro usuário via WebSocket
+          if (novaMensagem.remetenteId !== id) {
+            setMensagens((atual) => [
+              ...atual,
+              {
+                id: Math.random().toString(),
+                text: novaMensagem.conteudoTexto,
+                fromMe: false,
+              },
+            ]);
+          }
+        });
+      }
+    }
+
+    inicializar();
+
+    return () => desconectarChat(); // desconecta ao sair da tela
   }, []);
 
   const handleEnviarMensagem = async () => {
@@ -57,43 +83,41 @@ export default function Chat() {
 
     try {
       if (usuarioId && chatId) {
+        // salva no banco via HTTP
         await enviarMensagem({
           autorId: usuarioId,
           chatId: Number(chatId),
           conteudoTexto: textoEnviado,
           tipoMidia: 'texto',
         });
+
+        // envia em tempo real via WebSocket para o outro usuário
+        enviarMensagemWS(Number(chatId), usuarioId, textoEnviado);
       }
     } catch (error) {
-      console.error('Erro ao salvar mensagem:', error);
+      console.error('Erro ao enviar mensagem:', error);
     }
-    
 
+    // fluxo do robô (só enquanto não há especialista)
     if (etapa === 1) {
-      const respostaRobo = {
+      setMensagens((atual) => [...atual, {
         id: Math.random().toString(),
-        text: "Prazer em te conhecer, " + textoEnviado + "! Como você está se sentindo hoje?",
+        text: `Prazer em te conhecer, ${textoEnviado}! Como você está se sentindo hoje?`,
         fromMe: false,
-      };
-      setMensagens((atual) => [...atual, respostaRobo]);
+      }]);
       setEtapa(2);
     } else if (etapa === 2) {
-      const respostaRobo = {
+      setMensagens((atual) => [...atual, {
         id: Math.random().toString(),
-        text: "Entendi perfeitamente. Obrigado por compartilhar isso comigo. ❤️\n\nVocê gostaria de conversar com um de nossos especialistas agora para ter um apoio mais direcionado?",
+        text: "Entendi perfeitamente. Obrigado por compartilhar isso comigo. ❤️\n\nVocê gostaria de conversar com um de nossos especialistas agora?",
         fromMe: false,
-      };
-      setMensagens((atual) => [...atual, respostaRobo]);
+      }]);
       setEtapa(3);
     } else if (etapa === 3) {
-      const respostaUsuario = textoEnviado.toLowerCase();
-      let textoRobo = "";
-
-      if (respostaUsuario.includes("sim") || respostaUsuario.includes("quero") || respostaUsuario.includes("vms")) {
-        textoRobo = "Perfeito! Estou transferindo você para um de nossos especialistas humanos agora mesmo. Por favor, aguarde um momento. 👩‍⚕️👨‍⚕️";
-      } else {
-        textoRobo = "Entendido! Se precisar de qualquer coisa no futuro, estarei aqui. Cuide-se bem! E lembre-se: você não está sozinho(a) ❤️";
-      }
+      const resposta = textoEnviado.toLowerCase();
+      const textoRobo = resposta.includes("sim") || resposta.includes("quero") || resposta.includes("vms")
+        ? "Perfeito! Estou transferindo você para um especialista agora. Aguarde um momento. 👩‍⚕️"
+        : "Entendido! Se precisar de qualquer coisa, estarei aqui. Cuide-se bem! ❤️";
 
       setMensagens((atual) => [...atual, {
         id: Math.random().toString(),
@@ -102,6 +126,9 @@ export default function Chat() {
       }]);
       setEtapa(4);
     }
+
+    // rola para o final da lista
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
   return (
@@ -119,6 +146,7 @@ export default function Chat() {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={mensagens}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -129,6 +157,7 @@ export default function Chat() {
           </View>
         )}
         contentContainerStyle={styles.listaConteudo}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
       <View style={styles.inputContainer}>
